@@ -1,0 +1,10 @@
+<div class="label-white">{{label}}</div>
+<div class="progress-bar-group">
+  <div class="progress-bar">
+      <div [style.width]="percentage + '%'">&nbsp;</div>
+  </div>
+  <span class="progress-bar-label">
+    <span class="value">{{bytes}}</span>
+    <span class="unit">{{units}}</span>
+  </span>
+</div>

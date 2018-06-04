@@ -1,0 +1,11 @@
+<div class="first-row" style="height: 106px;">
+  <metric-string [label]="'Connections'" [value]="connections" style="border-right: 1px solid rgb(233, 234, 235);"></metric-string>
+  <metric-string [label]="'Time connected'" [value]="timeConnected"></metric-string>
+</div>
+<div class="second-row" style="height: 221px;">
+  <metric-speed [label]="'Download speed'" [speed]="downloadSpeed" style="border-right: 1px solid rgb(233, 234, 235);"></metric-speed>
+  <metric-speed [label]="'Upload speed'" [speed]="uploadSpeed"></metric-speed>
+</div>
+<div class="third-row" style="height: 95px;">
+  <button-connect [status]="status" (click)="onBtnClick()"></button-connect>
+</div>

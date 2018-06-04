@@ -1,0 +1,28 @@
+$light-blue: rgb(57, 64, 187);
+
+:host {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 30px;
+  border-bottom: 1px solid rgb(235, 235, 235);
+}
+
+.input-group {
+  position: relative;
+  width: 346px;
+  height: 18px;
+  border-bottom: 2px solid $light-blue;
+}
+
+.icon {
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+}
+
+.input {
+  width: 326px;
+  border: none;
+  color: $light-blue;
+}

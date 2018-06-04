@@ -1,0 +1,5 @@
+<span class="label">{{label}}</span>
+<div class="input-group">
+  <img class="icon" src="assets/icon-port.svg">
+  <input class="input" type="text" [value]="value" (change)="onInputChange($event)" [attr.disabled]="disabled ? '' : null">
+</div>

@@ -1,0 +1,25 @@
+$light-blue: rgb(57, 64, 187);
+$dark-blue: rgb(35, 38, 100);
+$label-color: rgb(16, 20, 102);
+$green: rgb(65, 214, 90);
+
+.node-button {
+  background-color: rgb(147, 149, 179);
+  color: white;
+  width: 330px;
+  height: 47px;
+  font-size: 18px;
+  font-weight: bold;
+  padding-left: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  -webkit-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+  -moz-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+  box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+}
+
+.node-button.active {
+  background-color: $green;
+}

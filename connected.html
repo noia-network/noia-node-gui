@@ -1,0 +1,139 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="manifest" href="site.webmanifest">
+        <!-- <link rel="apple-touch-icon" href="icon.png"> -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/containers.css">
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+        <div id="container">
+          <div id="sidebar">
+            <div id="nav">
+              <ul>
+                <li>
+                  <a class="active" href="">Node</a>
+                </li>
+                <li>
+                  <a href="">Wallet</a>
+                </li>
+                <li>
+                  <a href="">Settings</a>
+                </li>
+              </ul>
+            </div>
+            <div id="logo">
+              <object type="image/svg+xml" data="assets/noia-logo.svg">
+                <img src="assets/noia-logo.svg">
+              </object>
+            </div>
+          </div>
+          <div id="node-stats">
+            <div class="stat">
+              <div class="label-white">Available storage</div>
+              <div class="progress-bar-group">
+                <div class="progress-bar">
+                    <div style="width:25%">&nbsp;</div>
+                </div>
+                <span class="progress-bar-label">
+                  <span class="value">1</span>
+                  <span class="unit">TB</span>
+                </span>
+              </div>
+            </div>
+            <div class="stat">
+              <span class="value">2</span>
+              <span class="unit">TB</span>
+              <div class="label">Cached data</div>
+            </div>
+            <div class="stat">
+              <span class="value">985</span>
+              <span class="unit">MB</span>
+              <div class="label">Total data downloaded</div>
+            </div>
+            <div class="stat">
+              <span class="value">821</span>
+              <span class="unit">TB</span>
+              <div class="label">Total data uploaded</div>
+            </div>
+          </div>
+          <div id="node-section">
+            <div class="first-row" style="height: 106px;">
+              <div class="side" style="border-right: 1px solid rgb(233, 234, 235);">
+                <div class="value">3</div>
+                <div class="label">Connections</div>
+              </div>
+              <div class="side">
+                <div class="value">00:10:21</div>
+                <div class="label">Time connected</div>
+              </div>
+            </div>
+            <div class="second-row" style="height: 221px;">
+              <div class="side" style="border-right: 1px solid rgb(233, 234, 235);">
+                <div class="gauge">
+                  <img src="assets/gauge.svg">
+                </div>
+                <div class="value">65 <span class="label label-sm">Mbps</span></div>
+                <div class="label">Download speed</div>
+              </div>
+              <div class="side">
+                  <div class="gauge">
+                      <img src="assets/gauge.svg">
+                  </div>
+                  <div class="value">30 <span class="label label-sm">Mbps</span></div>
+                  <div class="label">Upload speed</div>
+              </div>
+            </div>
+            <div class="third-row" style="height: 95px;">
+              <button class="node-button">
+                <img src="assets/icon-power.svg" style="float: left;">
+                Disconnect
+              </button>
+            </div>
+          </div>
+        </div>
+    </body>
+
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script>
+      $(function() {
+
+      // We can attach the `fileselect` event to all file inputs on the page
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+      });
+
+      // We can watch for our custom `fileselect` event like this
+      $(document).ready( function() {
+          $(':file').on('fileselect', function(event, numFiles, label) {
+
+              var input = $(this).parents('.input-group').find(':text'),
+                  log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+              if( input.length ) {
+                  input.val(log);
+              } else {
+                  if( log ) alert(log);
+              }
+
+          });
+      });
+
+      });
+    </script>
+    </html>

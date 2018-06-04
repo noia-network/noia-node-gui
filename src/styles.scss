@@ -1,0 +1,13 @@
+/* toastr */
+@import "~ngx-toastr/toastr.css";
+.toast-container {
+  margin-top: 20px;
+}
+
+/* global styles */
+html, body {
+  margin: 0;
+  padding: 0;
+
+  height: 100%;
+}

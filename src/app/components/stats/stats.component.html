@@ -1,0 +1,4 @@
+<stat-progress [bytesTotal]="storage.total" [bytesUsed]="storage.used" [label]="'Available storage'"></stat-progress>
+<stat-data [bytes]="storage.used" [label]="'Cached data'"></stat-data>
+<stat-data [bytes]="data.downloaded" [label]="'Total data downloaded'"></stat-data>
+<stat-data [bytes]="data.uploaded" [label]="'Total data uploaded'"></stat-data>

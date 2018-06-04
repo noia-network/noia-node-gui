@@ -1,0 +1,18 @@
+$light-blue: rgb(57, 64, 187);
+$dark-blue: rgb(35, 38, 100);
+$label-color: rgb(16, 20, 102);
+
+:host {
+  padding-top: 25px;
+  width: 50%;
+  text-align: center;
+}
+
+.value {
+  font-size: 30px;
+  color: rgb(35, 42, 162);
+}
+
+.label {
+  color: grey;
+}

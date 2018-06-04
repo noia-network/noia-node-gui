@@ -1,0 +1,28 @@
+<div id="container">
+  <sidebar></sidebar>
+  <div id="settings">
+    <input-number [label]="'Network port'" [(value)]="settings.port"></input-number>
+    <!-- TODO: remove style attr -->
+    <div id="check-port-link" (click)="onPortCheck()" style="
+    margin-left: 10px;
+    margin-top: 10px;
+    position: absolute;
+    left: 240px;
+    top: 20px;
+    ">
+      Check port
+    </div>
+    <input-dir [label]="'Storage directory'" [(value)]="settings.storageDir"></input-dir>
+    <input-file [label]="'SSL private key'" [(value)]="settings.sslPrivateKey" [style.display]="'none'"></input-file>
+    <input-file [label]="'SSL crt'" [(value)]="settings.sslCrt" [style.display]="'none'"></input-file>
+    <input-file [label]="'SSL crt bundle'" [(value)]="settings.sslCrtBundle" [style.display]="'none'"></input-file>
+    <div class="flex-columns">
+      <div class="flex-column">
+        <button class="button" (click)="onSave()">Save</button>
+      </div>
+      <div class="flex-column flex-row-copyright">
+        Copyrights © NOIA.
+      </div>
+    </div>
+  </div>
+</div>

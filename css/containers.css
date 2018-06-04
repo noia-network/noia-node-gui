@@ -1,0 +1,136 @@
+html {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+
+  width: 726px;
+  height: 427px;
+  border: 1px solid black; /* debug */
+}
+
+#settings {
+  display: flex;
+  flex-direction: column;
+  width: 604px;
+}
+
+#node-stats {
+  display: flex;
+  flex-direction: column;
+
+  width: 212px;
+  background-color: var(--dark-blue);
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+}
+
+#node-section {
+  display: flex;
+  flex-direction: column;
+
+  width: 392px;
+  background-color: rgb(255, 255, 255);
+}
+
+#node-section .first-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(233, 234, 235);
+}
+#node-section .first-row .side {
+  padding-top: 25px;
+  width: 50%;
+  text-align: center;
+}
+#node-section .first-row .side .value {
+  font-size: 30px;
+  color: rgb(35, 42, 162);
+}
+#node-section .first-row .side .label {
+  color: grey;
+}
+
+#node-section .third-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.node-button {
+  background-color: rgb(147, 149, 179);
+  color: white;
+  width: 330px;
+  height: 47px;
+  font-size: 18px;
+  font-weight: bold;
+  padding-left: 20px;
+  border: none;
+  border-radius: 5px;
+
+  -webkit-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+  -moz-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+  box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+}
+.node-button {
+  background-color: var(--green);
+}
+
+#node-section .second-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(233, 234, 235);
+}
+#node-section .second-row .side {
+  padding-top: 25px;
+  width: 50%;
+  text-align: center;
+}
+#node-section .second-row .side .value {
+  font-size: 30px;
+  color: rgb(35, 42, 162);
+}
+#node-section .second-row .side .label {
+  color: grey;
+}
+#node-section .second-row .side .label-sm {
+  font-size: 14px;
+}
+
+#sidebar {
+  display: flex;
+  flex-direction: column;
+
+  width: 122px;
+  background-color: var(--light-blue)
+}
+
+#nav ul {
+  list-style-type: none;
+  padding-left: 30px;
+  margin: 0;
+}
+
+#nav ul li {
+  padding-top: 30px;
+}
+
+#nav a {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+#nav a.active {
+  opacity: 1;
+}
+
+#logo {
+  margin-top: auto;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 25px;
+}

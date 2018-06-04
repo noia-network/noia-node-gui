@@ -1,0 +1,21 @@
+$blue-text: rgb(35, 42, 162);
+$grey-text: grey;
+
+:host {
+  padding-top: 25px;
+  width: 50%;
+  text-align: center;
+}
+
+.value {
+  font-size: 30px;
+  color: $blue-text;
+}
+
+.label {
+  color: $grey-text;
+}
+
+.label-sm {
+  font-size: 14px;
+}
