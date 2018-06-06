@@ -206,9 +206,9 @@ export class NodeService {
   }
 
   updateTimeConnected(timeInSeconds) {
-    const seconds = timeInSeconds % 60 + ""
-    const minutes = Math.floor(timeInSeconds / (60)) + ""
-    const hours = Math.floor(timeInSeconds / (60 * 24)) + ""
+    const seconds = (Math.floor(timeInSeconds % 3600 % 60)).toString()
+    const minutes = (Math.floor(timeInSeconds % 3600 / 60)).toString()
+    const hours = (Math.floor(timeInSeconds / 3600)).toString()
     const secondsString = seconds.length === 1 ? `0${seconds}` : seconds
     const minutesString = minutes.length === 1 ? `0${minutes}` : minutes
     const hoursString = hours.length === 1 ? `0${hours}` : hours
