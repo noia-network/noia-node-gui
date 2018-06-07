@@ -91,7 +91,9 @@ let speedInterval
 let walletInterval
 ipcMain.on("nodeInit", () => {
   console.log("[NODE]: initializing node...")
-  node = new Node()
+  node = new Node({
+    userDataPath: app.getPath("userData")
+  })
 
   // Temporarily set default public master address to minimise steps for user
   node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565", "") // TODO: expose to settings
