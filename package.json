@@ -52,7 +52,7 @@
     "core-js": "2.4.1",
     "cross-env": "5.0.5",
     "dotenv": "5.0.0",
-    "electron": "1.8.2",
+    "electron": "1.8.3",
     "electron-builder": "20.0.5",
     "electron-rebuild": "^1.7.3",
     "electron-reload": "1.2.2",
