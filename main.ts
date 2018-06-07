@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain, screen } from "electron"
+import { BrowserWindow, app, ipcMain, screen, Menu } from "electron"
 import * as path from "path";
 import * as url from "url";
 const Node = require("noia-node")
@@ -29,7 +29,28 @@ function createWindow() {
     height: 427 + 51 - 20 - 2,
     icon: path.join(__dirname, "src/assets/noia-icon.png")
   });
-  win.setMenu(null)
+
+  if (process.platform === "darwin") {
+    // Create our menu entries so that we can use MAC shortcuts
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      {
+        label: "Edit",
+        submenu: [
+          { role: "undo" },
+          { role: "redo" },
+          { type: "separator" },
+          { role: "cut" },
+          { role: "copy" },
+          { role: "paste" },
+          { role: "pasteandmatchstyle" },
+          { role: "delete" },
+          { role: "selectall" }
+        ]
+      }
+    ]));
+  } else {
+    win.setMenu(null)
+  }
 
   if (serve) {
     require("electron-reload")(__dirname, {
