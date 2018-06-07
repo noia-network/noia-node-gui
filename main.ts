@@ -200,9 +200,11 @@ ipcMain.on("nodeInit", () => {
       console.log(`[NODE]: WS sent to ${client} ${resource} ${uploadedMB}`)
     }
   })
-  setInterval(() => {
+  const totalTimeInterval = setInterval(() => {
     const totalTimeConnected = node.statistics.get(node.statistics.Options.totalTimeConnected)
-    win.webContents.send("timeConnected", totalTimeConnected)
+    if (win && win.webContents) {
+      win.webContents.send("timeConnected", totalTimeConnected)
+    }
   }, 1 * 1000)
   win.webContents.send("downloaded", node.statistics.get(node.statistics.Options.totalDownloaded))
   node.contentsClient.on("downloaded", (downloaded) => {
