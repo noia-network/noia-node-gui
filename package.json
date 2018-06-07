@@ -27,7 +27,7 @@
     "@angular/animations": "^5.2.9",
     "date-fns": "^1.29.0",
     "ngx-toastr": "^8.3.0",
-    "noia-node": "https://github.com/noia-network/noia-node.git#dev-danielius",
+    "noia-node": "https://github.com/noia-network/noia-node.git",
     "randombytes": "^2.0.6",
     "request": "^2.85.0"
   },
