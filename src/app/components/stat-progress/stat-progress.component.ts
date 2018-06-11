@@ -32,19 +32,23 @@ export class StatProgressComponent implements OnInit, OnChanges {
     const B = 1
     const kB = 1000 * B
     const MB = 1000 * kB
-    const TB = 1000 * MB
+    const GB = 1000 * MB
+    const TB = 1000 * GB
     if (this.bytesTotal <= kB) {
       this.units = "B"
       this.bytes = this.bytesTotal
     } else if (this.bytesTotal <= MB) {
       this.units = "kB"
       this.bytes = Math.round(this.bytesTotal / kB)
-    } else if (this.bytesTotal <= TB) {
+    } else if (this.bytesTotal <= GB) {
       this.units = "MB"
       this.bytes = Math.round(this.bytesTotal / MB)
+    } else if (this.bytesTotal <= TB) {
+      this.units = "GB"
+      this.bytes = Math.round(this.bytesTotal / GB)
     } else {
-      this.bytes = Math.round(this.bytesTotal / TB)
       this.units = "TB"
+      this.bytes = Math.round(this.bytesTotal / TB)
     }
   }
 }
