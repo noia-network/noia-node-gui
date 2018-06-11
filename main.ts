@@ -170,22 +170,25 @@ ipcMain.on("nodeInit", () => {
         console.log(`[NODE]: connection with master closed, info =`, info)
         win.webContents.send("alertError", info.reason)
       } else {
-        console.log(`[NODE]: connection with master closed, info =`, info)
-        win.webContents.send("getAutoReconnect")
-        ipcMain.once("autoReconnect", (sender, autoReconnect) => {
-          const seconds = 60
-          if (autoReconnect) {
-            if (autoReconnectTimeout) {
-              clearTimeout(autoReconnectTimeout)
-            }
-            autoReconnectTimeout = setTimeout(() => {
-              if (win && win.webContents) {
-                nodeStart()
+        checkInternet((isConnected) => {
+          const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. "
+          console.log(`[NODE]: connection with master closed, info =`, info)
+          win.webContents.send("getAutoReconnect")
+          ipcMain.once("autoReconnect", (sender, autoReconnect) => {
+            const seconds = 60
+            if (autoReconnect) {
+              if (autoReconnectTimeout) {
+                clearTimeout(autoReconnectTimeout)
               }
-            }, seconds * 1000)
-          }
-          const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
-          win.webContents.send("alertError", `Failed to connect to master${autoReconnectPostfix}`)
+              autoReconnectTimeout = setTimeout(() => {
+                if (win && win.webContents) {
+                  nodeStart()
+                }
+              }, seconds * 1000)
+            }
+            const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
+            win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`)
+          })
         })
       }
       nodeStop()
@@ -302,4 +305,14 @@ function nodeStop () {
 
   console.log("[NODE]: stopping...")
   node.stop()
+}
+
+function checkInternet(cb) {
+  require("dns").lookupService("8.8.8.8", 53, (err) => {
+    if (err && ["ENOTFOUND", "EAI_AGAIN"].includes(err.code)) {
+      cb(false)
+    } else {
+      cb(true)
+    }
+  })
 }
