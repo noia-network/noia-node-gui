@@ -64,7 +64,7 @@ function createWindow() {
     }));
   }
 
-  // win.webContents.openDevTools();
+  // win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on("closed", () => {
@@ -110,6 +110,7 @@ try {
 
 let speedInterval
 let walletInterval
+let autoReconnectTimeout
 ipcMain.on("nodeInit", () => {
   console.log("[NODE]: initializing node...")
   node = new Node({
@@ -170,7 +171,22 @@ ipcMain.on("nodeInit", () => {
         win.webContents.send("alertError", info.reason)
       } else {
         console.log(`[NODE]: connection with master closed, info =`, info)
-        win.webContents.send("alertError", "Failed to connect to master")
+        win.webContents.send("getAutoReconnect")
+        ipcMain.once("autoReconnect", (sender, autoReconnect) => {
+          const seconds = 60
+          if (autoReconnect) {
+            if (autoReconnectTimeout) {
+              clearTimeout(autoReconnectTimeout)
+            }
+            autoReconnectTimeout = setTimeout(() => {
+              if (win && win.webContents) {
+                nodeStart()
+              }
+            }, seconds * 1000)
+          }
+          const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
+          win.webContents.send("alertError", `Failed to connect to master${autoReconnectPostfix}`)
+        })
       }
       nodeStop()
     } else {
@@ -251,9 +267,7 @@ ipcMain.on("setWallet", (sender, wallet) => {
 })
 
 ipcMain.on("nodeStart", (info) => {
-  console.log("[NODE]: starting...")
-  win.webContents.send("nodeStarting")
-  node.start()
+  nodeStart()
 })
 
 ipcMain.on("nodeMasterConnect", () => {
@@ -272,6 +286,12 @@ ipcMain.on("nodeStorageInfo", () => {
 ipcMain.on("nodeStop", () => {
   nodeStop()
 })
+
+function nodeStart () {
+  console.log("[NODE]: starting...")
+  win.webContents.send("nodeStarting")
+  node.start()
+}
 
 function nodeStop () {
   win.webContents.send("nodeStopped")

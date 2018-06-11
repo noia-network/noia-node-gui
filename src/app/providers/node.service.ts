@@ -14,6 +14,7 @@ export enum NodeStatuses {
 export class NodeService {
   ipcRenderer: typeof ipcRenderer
   status: NodeStatuses = NodeStatuses.stopped
+  autoReconnect = true
   timeConnected = "00:00:00"
   interval
   startedTime
@@ -185,6 +186,9 @@ export class NodeService {
       this.announceDownloadSpeed(0)
       this.announceUploadSpeed(0)
       this.announceStatus(NodeStatuses.stopped)
+    })
+    this.ipcRenderer.on("getAutoReconnect", () => {
+      this.ipcRenderer.send("autoReconnect", this.autoReconnect)
     })
   }
 
