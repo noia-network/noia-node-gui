@@ -1,6 +1,6 @@
 {
   "name": "noia-node-gui",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node GUI",
   "homepage": "http://noia.network",
   "main": "main.js",
