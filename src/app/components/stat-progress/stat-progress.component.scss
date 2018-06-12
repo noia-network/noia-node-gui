@@ -3,6 +3,42 @@ $green: rgb(65, 214, 90);
 $green-darken: rgb(73, 208, 101);
 $white: rgb(255, 255, 255);
 
+
+// TODO: Extract to reusable tooltip component.
+#tooltip {
+  display: inline-block;
+}
+
+#tooltip > .tooltip-hoverable {
+  background-color: #3940bb;
+  color: white;
+  padding: 2px;
+  border-radius: 10px;
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#tooltip > .tooltip-hoverable:hover + .tooltip-content {
+  display: block;
+}
+
+#tooltip > .tooltip-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  padding: 5px;
+  color: #232664;
+  border: 1px solid #000;
+  top: 56px;
+  z-index: 1;
+  width: 250px;
+  left: 160px;
+}
+
 .progress-bar-group {
   position: relative;
 }
