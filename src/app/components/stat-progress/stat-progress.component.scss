@@ -14,8 +14,8 @@ $white: rgb(255, 255, 255);
   color: white;
   padding: 2px;
   border-radius: 10px;
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   display: inline-block;
   text-align: center;
   font-size: 12px;
@@ -85,6 +85,7 @@ stat-data:not(:last-child) {
   font-size: 12px;
 }
 
-:host > .label-white {
+:host .label {
+  font-size: 12px;
   color: $white;
 }
