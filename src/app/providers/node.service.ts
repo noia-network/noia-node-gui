@@ -176,16 +176,16 @@ export class NodeService {
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]
     })
-    this.ipcRenderer.on("nodeStarted", () => {
-      this.announceStatus(NodeStatuses.running)
-    })
-    this.ipcRenderer.on("nodeStarting", () => {
-      this.announceStatus(NodeStatuses.starting)
-    })
-    this.ipcRenderer.on("nodeStopped", () => {
-      this.announceDownloadSpeed(0)
-      this.announceUploadSpeed(0)
-      this.announceStatus(NodeStatuses.stopped)
+    this.ipcRenderer.on("nodeStatus", (sender, status) => {
+      if (status === "running") {
+        this.announceStatus(NodeStatuses.running)
+      } else if (status === "starting") {
+        this.announceStatus(NodeStatuses.starting)
+      } else if (status === "stopped") {
+        this.announceDownloadSpeed(0)
+        this.announceUploadSpeed(0)
+        this.announceStatus(NodeStatuses.stopped)
+      }
     })
     this.ipcRenderer.on("getAutoReconnect", () => {
       this.ipcRenderer.send("autoReconnect", this.autoReconnect)
