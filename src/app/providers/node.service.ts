@@ -14,7 +14,6 @@ export enum NodeStatuses {
 export class NodeService {
   ipcRenderer: typeof ipcRenderer
   status: NodeStatuses = NodeStatuses.stopped
-  autoReconnect = true
   timeConnected = "00:00:00"
   interval
   startedTime
@@ -33,6 +32,7 @@ export class NodeService {
   private walletAnnouncedSource = new Subject<any>()
   private walletBalanceAnnouncedSource = new Subject<any>()
   private walletEthBalanceAnnouncedSource = new Subject<any>()
+  private autoReconnectAnnouncedSource = new Subject<any>()
 
   // Observable string streams
   connectionsAnnounced$ = this.connectionsAnnouncedSource.asObservable()
@@ -46,6 +46,7 @@ export class NodeService {
   walletAnnounced$ = this.walletAnnouncedSource.asObservable()
   walletBalanceAnnounced$ = this.walletBalanceAnnouncedSource.asObservable()
   walletEthBalanceAnnounced$ = this.walletEthBalanceAnnouncedSource.asObservable()
+  autoReconnectAnnounced$ = this.autoReconnectAnnouncedSource.asObservable()
 
   sslPrivateKey: string
   sslCrt: string
@@ -187,9 +188,13 @@ export class NodeService {
         this.announceStatus(NodeStatuses.stopped)
       }
     })
-    this.ipcRenderer.on("getAutoReconnect", () => {
-      this.ipcRenderer.send("autoReconnect", this.autoReconnect)
+    this.ipcRenderer.on("autoReconnect", (sender, autoReconnect) => {
+      this.announceAutoReconnect(autoReconnect)
     })
+  }
+
+  setAutoReconnect(autoReconnect: boolean) {
+    this.ipcRenderer.send("setAutoReconnect", autoReconnect)
   }
 
   start () {
@@ -258,5 +263,8 @@ export class NodeService {
   }
   announceUploadSpeed(uploadSpeed: any) {
     this.uploadSpeedAnnouncedSource.next(uploadSpeed)
+  }
+  announceAutoReconnect(autoReconnect: boolean) {
+    this.autoReconnectAnnouncedSource.next(autoReconnect)
   }
 }

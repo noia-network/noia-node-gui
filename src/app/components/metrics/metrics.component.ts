@@ -14,15 +14,16 @@ import { NodeService, NodeStatuses } from "../../providers/node.service"
 export class MetricsComponent implements OnInit, OnDestroy  {
   @Input() toggleStatus: Function
   @Input() status: NodeStatuses
-  autoReconnect = true
   timeConnected: string
   downloadSpeed: number
   uploadSpeed: number
   connections: number
+  autoReconnect: boolean
   private downloadSpeedSubscription
   private uploadSpeedSubscription
   private timeConnectedSubscription
   private connectionsSubscription
+  private autoReconnectSubscription
 
   constructor(
     private chRef: ChangeDetectorRef,
@@ -48,6 +49,10 @@ export class MetricsComponent implements OnInit, OnDestroy  {
       this.connections = connections
       this.chRef.detectChanges()
     })
+    this.autoReconnectSubscription = this.node.autoReconnectAnnounced$.subscribe(autoReconnect => {
+      this.autoReconnect = autoReconnect
+      this.chRef.detectChanges()
+    })
   }
 
   ngOnInit() {
@@ -66,8 +71,6 @@ export class MetricsComponent implements OnInit, OnDestroy  {
   }
 
   toggleAutoReconnect() {
-    // console.trace("")
-    console.log(this.node.autoReconnect, !this.node.autoReconnect)
-    this.node.autoReconnect = !this.node.autoReconnect
+    this.node.setAutoReconnect(!this.autoReconnect)
   }
 }
