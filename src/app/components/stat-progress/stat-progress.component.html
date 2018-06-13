@@ -1,4 +1,9 @@
-<div class="label-white">{{label}}</div>
+<div><span class="label">{{label}}</span>
+  <div id="tooltip">
+    <div class="tooltip-hoverable">?</div>
+    <div class="tooltip-content">Available storage is the amount of storage in your device which is allowed to be used by NOIA Network. You will soon be able to change it.</div>
+  </div>
+</div>
 <div class="progress-bar-group">
   <div class="progress-bar">
       <div [style.width]="percentage + '%'">&nbsp;</div>
@@ -7,4 +12,4 @@
     <span class="value">{{bytes}}</span>
     <span class="unit">{{units}}</span>
   </span>
-</div>
+</div> 

@@ -14,6 +14,7 @@ import { NodeService, NodeStatuses } from "../../providers/node.service"
 export class MetricsComponent implements OnInit, OnDestroy  {
   @Input() toggleStatus: Function
   @Input() status: NodeStatuses
+  autoReconnect = true
   timeConnected: string
   downloadSpeed: number
   uploadSpeed: number
@@ -62,5 +63,11 @@ export class MetricsComponent implements OnInit, OnDestroy  {
 
   onBtnClick() {
     this.toggleStatus()
+  }
+
+  toggleAutoReconnect() {
+    // console.trace("")
+    console.log(this.node.autoReconnect, !this.node.autoReconnect)
+    this.node.autoReconnect = !this.node.autoReconnect
   }
 }

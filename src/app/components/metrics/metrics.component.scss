@@ -3,6 +3,12 @@ $dark-blue: rgb(35, 38, 100);
 $label-color: rgb(16, 20, 102);
 $green: rgb(65, 214, 90);
 
+#auto-reconnect {
+  margin-left: auto;
+  padding-right: 27px;
+  color: #9395b3;
+}
+
 #settings {
   display: flex;
   flex-direction: column;
@@ -31,6 +37,7 @@ $green: rgb(65, 214, 90);
 
 :host .third-row {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }

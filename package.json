@@ -1,6 +1,6 @@
 {
   "name": "noia-node-gui",
-  "version": "0.1.1",
+  "version": "0.2.5",
   "description": "Node GUI",
   "homepage": "http://noia.network",
   "main": "main.js",
@@ -20,7 +20,7 @@
     "electron:serve": "wait-on http-get://localhost:4200/ && npm run electron:tsc && electron . --serve",
     "electron:local": "npm run build:prod && electron .",
     "electron:linux": "npm run build:prod && npx electron-builder build --linux",
-    "electron:windows": "npm run build:prod && npx electron-builder build --windows",
+    "electron:windows": "npm run build:prod && npx electron-builder build --windows nsis --ia32 --x64",
     "electron:mac": "npm run build:prod && npx electron-builder build --mac"
   },
   "dependencies": {
@@ -29,7 +29,9 @@
     "ngx-toastr": "^8.3.0",
     "noia-node": "https://github.com/noia-network/noia-node.git",
     "randombytes": "^2.0.6",
-    "request": "^2.85.0"
+    "request": "^2.85.0",
+    "typeface-roboto": "0.0.54",
+    "typeface-roboto-mono": "0.0.54"
   },
   "devDependencies": {
     "@angular/cli": "1.7.1",
