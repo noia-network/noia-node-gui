@@ -111,6 +111,8 @@ let node
 let speedInterval
 let walletInterval
 let autoReconnectTimeout
+let autoReconnectInterval
+let secondsLeft
 let autoReconnect = true
 let nodeStatus = "stopped"
 ipcMain.on("nodeInit", () => {
@@ -155,30 +157,37 @@ ipcMain.on("nodeInit", () => {
         if (win && win.webContents) {
           win.webContents.send("alertError", info.reason)
         }
-      } else {
-        checkInternet((isConnected) => {
-          const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. "
-          console.log(`[NODE]: connection with master closed, info =`, info)
-          if (win && win.webContents) {
-            win.webContents.send("autoReconnect", autoReconnect)
-          }
-          const seconds = 60
-          if (autoReconnect) {
-            if (autoReconnectTimeout) {
-              clearTimeout(autoReconnectTimeout)
-            }
-            autoReconnectTimeout = setTimeout(() => {
-              if (win && win.webContents) {
-                nodeStart()
-              }
-            }, seconds * 1000)
-          }
-          const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
-          if (win && win.webContents) {
-            win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`)
-          }
-        })
       }
+      checkInternet((isConnected) => {
+        const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. "
+        console.log(`[NODE]: connection with master closed, info =`, info)
+        if (win && win.webContents) {
+          win.webContents.send("autoReconnect", autoReconnect)
+        }
+        const seconds = 60
+        if (autoReconnect) {
+          secondsLeft = seconds
+          if (autoReconnectInterval) {
+            clearTimeout(autoReconnectInterval)
+          }
+
+          autoReconnectInterval = setInterval(() => {
+            secondsLeft -= 1
+            if (secondsLeft <= 0) {
+              clearInterval(autoReconnectInterval)
+              nodeStart()
+            }
+            updateNodeStatus("reconnecting", secondsLeft)
+          }, 1 * 1000)
+
+          autoReconnectTimeout = setTimeout(() => {
+          }, seconds * 1000)
+        }
+        const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
+        if (win && win.webContents) {
+          win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`)
+        }
+      })
       node.stop()
     } else {
       console.log(`[NODE]: connection with master closed, normal exit`)
@@ -318,10 +327,10 @@ function nodeStart () {
   node.start()
 }
 
-function updateNodeStatus (status) {
+function updateNodeStatus (status, seconds?: number) {
   nodeStatus = status
   if (win && win.webContents) {
-    win.webContents.send("nodeStatus", nodeStatus)
+    win.webContents.send("nodeStatus", nodeStatus, seconds)
   }
 }
 

@@ -14,6 +14,7 @@ import { NodeService, NodeStatuses } from "../../providers/node.service"
 export class MetricsComponent implements OnInit, OnDestroy  {
   @Input() toggleStatus: Function
   @Input() status: NodeStatuses
+  @Input() autoReconnectSeconds: number
   timeConnected: string
   downloadSpeed: number
   uploadSpeed: number
@@ -24,6 +25,7 @@ export class MetricsComponent implements OnInit, OnDestroy  {
   private timeConnectedSubscription
   private connectionsSubscription
   private autoReconnectSubscription
+  private autoReconnectSecondsSubscription
 
   constructor(
     private chRef: ChangeDetectorRef,
@@ -49,8 +51,14 @@ export class MetricsComponent implements OnInit, OnDestroy  {
       this.connections = connections
       this.chRef.detectChanges()
     })
+    this.autoReconnect = this.node.autoReconnect
     this.autoReconnectSubscription = this.node.autoReconnectAnnounced$.subscribe(autoReconnect => {
       this.autoReconnect = autoReconnect
+      this.chRef.detectChanges()
+    })
+    this.autoReconnectSeconds = this.node.autoReconnectSeconds
+    this.autoReconnectSecondsSubscription = this.node.autoReconnectSecondsAnnounced$.subscribe(autoReconnectSeconds => {
+      this.autoReconnectSeconds = autoReconnectSeconds
       this.chRef.detectChanges()
     })
   }
@@ -60,10 +68,11 @@ export class MetricsComponent implements OnInit, OnDestroy  {
   }
 
   ngOnDestroy() {
-    this.downloadSpeedSubscription.unsubscribe();
-    this.uploadSpeedSubscription.unsubscribe();
-    this.timeConnectedSubscription.unsubscribe();
-    this.connectionsSubscription.unsubscribe();
+    this.downloadSpeedSubscription.unsubscribe()
+    this.uploadSpeedSubscription.unsubscribe()
+    this.timeConnectedSubscription.unsubscribe()
+    this.connectionsSubscription.unsubscribe()
+    this.autoReconnectSecondsSubscription.unsubscribe()
   }
 
   onBtnClick() {

@@ -24,7 +24,7 @@ export class NodeComponent implements OnInit, OnDestroy {
   }
 
   toggleStatus = (function () {
-    if (this.status === NodeStatuses.stopped) {
+    if (this.status === NodeStatuses.stopped || this.status === NodeStatuses.reconnecting) {
       this.node.start()
     } else if (this.status === NodeStatuses.running) {
       this.node.stop()
