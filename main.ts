@@ -179,7 +179,7 @@ ipcMain.on("nodeInit", () => {
           }
         })
       }
-      nodeStop()
+      node.stop()
     } else {
       console.log(`[NODE]: connection with master closed, normal exit`)
     }
@@ -262,7 +262,24 @@ ipcMain.on("nodeInit", () => {
   node.on("destroyed", () => {
     console.log("[NODE]: stopped.")
   })
+  node.on("stopped", () => {
+    console.log("[NODE]: stopping...")
+    updateNodeStatus("stopped")
+    if (speedInterval) {
+      clearInterval(speedInterval)
+      speedInterval = null
+    }
+  })
   node.on("error", (error) => {
+    const errorPrefix = "Error has occured:"
+    if (win && win.webContents) {
+      if (error.code === "EADDRINUSE") {
+        const errorMessage = `${error.port} is already in use. Please choose another port.`
+        win.webContents.send("alertError", `${errorPrefix} ${errorMessage}`)
+      } else {
+        win.webContents.send("alertError", `${errorPrefix} ${error.code}`)
+      }
+    }
     console.log("[NODE]: error =", error)
   })
   console.log("[NODE]: initialized.")
@@ -292,24 +309,13 @@ ipcMain.on("nodeStorageInfo", () => {
 })
 
 ipcMain.on("nodeStop", () => {
-  nodeStop()
+  node.stop()
 })
 
 function nodeStart () {
   console.log("[NODE]: starting...")
   updateNodeStatus("starting")
   node.start()
-}
-
-function nodeStop () {
-  updateNodeStatus("stopped")
-  if (speedInterval) {
-    clearInterval(speedInterval)
-    speedInterval = null
-  }
-
-  console.log("[NODE]: stopping...")
-  node.stop()
 }
 
 function updateNodeStatus (status) {
