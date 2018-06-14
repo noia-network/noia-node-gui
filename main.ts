@@ -110,7 +110,6 @@ try {
 let node
 let speedInterval
 let walletInterval
-let autoReconnectTimeout
 let autoReconnectInterval
 let secondsLeft
 let autoReconnect = true
@@ -174,14 +173,10 @@ ipcMain.on("nodeInit", () => {
           autoReconnectInterval = setInterval(() => {
             secondsLeft -= 1
             if (secondsLeft <= 0) {
-              clearInterval(autoReconnectInterval)
               nodeStart()
             }
             updateNodeStatus("reconnecting", secondsLeft)
           }, 1 * 1000)
-
-          autoReconnectTimeout = setTimeout(() => {
-          }, seconds * 1000)
         }
         const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
         if (win && win.webContents) {
@@ -322,6 +317,9 @@ ipcMain.on("nodeStop", () => {
 })
 
 function nodeStart () {
+  if (autoReconnectInterval) {
+    clearInterval(autoReconnectInterval)
+  }
   console.log("[NODE]: starting...")
   updateNodeStatus("starting")
   node.start()
