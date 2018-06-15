@@ -281,7 +281,7 @@ ipcMain.on("nodeInit", () => {
         const errorMessage = `${error.port} is already in use. Please choose another port.`
         win.webContents.send("alertError", `${errorPrefix} ${errorMessage}`)
       } else {
-        win.webContents.send("alertError", `${errorPrefix} ${error.code}`)
+        win.webContents.send("alertError", `${errorPrefix} ${error.message}`)
       }
     }
     console.log("[NODE]: error =", error)
