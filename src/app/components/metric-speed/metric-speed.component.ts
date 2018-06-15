@@ -6,11 +6,12 @@ import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChange, Simpl
   styleUrls: ["./metric-speed.component.scss"]
 })
 export class MetricSpeedComponent implements OnChanges, OnInit, AfterViewInit  {
-  @Input() speed: number
+  @Input() speed: number // Bps
   @Input() label: string
   @ViewChild("gaugeArrow") gaugeArrow
   units: string;
   speedTransformed: string
+  maxSpeed: number
   constructor() { }
 
   ngOnInit() {
@@ -36,9 +37,7 @@ export class MetricSpeedComponent implements OnChanges, OnInit, AfterViewInit  {
 
   transformSpeedAndUnits() {
     const precision = 0
-    const b = 1
-    const B = 8 * b
-    const kBps = 1000 * B
+    const kBps = 1000
     const MBps = 1000 * kBps
     if (this.speed <= kBps) {
       this.units = "Bps"
@@ -50,11 +49,13 @@ export class MetricSpeedComponent implements OnChanges, OnInit, AfterViewInit  {
       this.units = "MBps"
       this.speedTransformed = Math.round(this.speed / MBps).toFixed(precision)
     }
+    if (!this.maxSpeed || this.maxSpeed < this.speed) {
+      this.maxSpeed = this.speed
+    }
   }
 
   rotateArrow() {
-    const max = 8 * 1000 * 1000 * 8
-    let ratio = this.speed / max
+    let ratio = this.speed / this.maxSpeed
     if (ratio > 1) {
       ratio = 1
     }

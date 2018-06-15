@@ -12,6 +12,7 @@ import { NodeStatuses } from "../../providers/node.service"
 export class ButtonConnectComponent implements OnInit, OnChanges  {
   @Input() status: NodeStatuses
   @Input() statuses = NodeStatuses
+  @Input() autoReconnectSeconds
 
   constructor() { }
 
@@ -19,7 +20,13 @@ export class ButtonConnectComponent implements OnInit, OnChanges  {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    const status: SimpleChange = changes.status;
-    this.status = status.currentValue
+    const status: SimpleChange = changes.status
+    if (status) {
+      this.status = status.currentValue
+    }
+    const autoReconnectSeconds: SimpleChange = changes.autoReconnectSeconds
+    if (autoReconnectSeconds) {
+      this.autoReconnectSeconds = autoReconnectSeconds.currentValue
+    }
   }
 }

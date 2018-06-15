@@ -110,11 +110,14 @@ try {
 let node
 let speedInterval
 let walletInterval
-let autoReconnectTimeout
+let autoReconnectInterval
+let secondsLeft
+let autoReconnect = true
 let nodeStatus = "stopped"
 ipcMain.on("nodeInit", () => {
   if (win && win.webContents) {
     win.webContents.send("nodeStatus", nodeStatus)
+    win.webContents.send("autoReconnect", autoReconnect)
   }
   if (node) {
     if (win && win.webContents) {
@@ -150,33 +153,43 @@ ipcMain.on("nodeInit", () => {
     if (info && info.code !== 1000) {
       if (info && info.code === 1002) {
         console.log(`[NODE]: connection with master closed, info =`, info)
-        win.webContents.send("alertError", info.reason)
-      } else {
-        checkInternet((isConnected) => {
-          const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. "
-          console.log(`[NODE]: connection with master closed, info =`, info)
-          win.webContents.send("getAutoReconnect")
-          ipcMain.once("autoReconnect", (sender, autoReconnect) => {
-            const seconds = 60
-            if (autoReconnect) {
-              if (autoReconnectTimeout) {
-                clearTimeout(autoReconnectTimeout)
-              }
-              autoReconnectTimeout = setTimeout(() => {
-                if (win && win.webContents) {
-                  nodeStart()
-                }
-              }, seconds * 1000)
-            }
-            const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
-            win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`)
-          })
-        })
+        if (win && win.webContents) {
+          win.webContents.send("alertError", info.reason)
+        }
       }
-      nodeStop()
+      checkInternet((isConnected) => {
+        const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. "
+        console.log(`[NODE]: connection with master closed, info =`, info)
+        if (win && win.webContents) {
+          win.webContents.send("autoReconnect", autoReconnect)
+        }
+        const seconds = 60
+        if (autoReconnect) {
+          secondsLeft = seconds
+          if (autoReconnectInterval) {
+            clearTimeout(autoReconnectInterval)
+          }
+
+          autoReconnectInterval = setInterval(() => {
+            secondsLeft -= 1
+            if (secondsLeft <= 0) {
+              nodeStart()
+            }
+            updateNodeStatus("reconnecting", secondsLeft)
+          }, 1 * 1000)
+        }
+        const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : ""
+        if (win && win.webContents) {
+          win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`)
+        }
+      })
+      node.stop()
     } else {
       console.log(`[NODE]: connection with master closed, normal exit`)
     }
+  })
+  ipcMain.on("setAutoReconnect", (sender, isAutoReconnect) => {
+    autoReconnect = isAutoReconnect
   })
   node.master.on("cache", (info) => {
     console.log(`[NODE][IN]: cache request, resource = ${info.source.url}`)
@@ -198,7 +211,9 @@ ipcMain.on("nodeInit", () => {
     })
     node.clientSockets.ws.on("connections", count => {
       console.log(`[NODE]: WS Clients connections = ${count}`)
-      win.webContents.send("connections", count)
+      if (win && win.webContents) {
+        win.webContents.send("connections", count)
+      }
     })
   }
   node.contentsClient.on("seeding", (infoHashes) => {
@@ -206,7 +221,9 @@ ipcMain.on("nodeInit", () => {
     node.storageSpace.stats()
     .then((stats) => {
       console.log("[NODE]: Storage usage =", stats)
-      win.webContents.send("winStorageInfo", stats)
+      if (win && win.webContents) {
+        win.webContents.send("winStorageInfo", stats)
+      }
     })
   })
   node.clientSockets.on("resourceSent", (info) => {
@@ -228,20 +245,45 @@ ipcMain.on("nodeInit", () => {
       win.webContents.send("timeConnected", totalTimeConnected)
     }
   }, 1 * 1000)
-  win.webContents.send("downloaded", node.statistics.get(node.statistics.Options.totalDownloaded))
+  if (win && win.webContents) {
+    win.webContents.send("downloaded", node.statistics.get(node.statistics.Options.totalDownloaded))
+  }
   node.contentsClient.on("downloaded", (downloaded) => {
     const totalDownloaded = node.statistics.get(node.statistics.Options.totalDownloaded)
-    win.webContents.send("downloaded", totalDownloaded)
+    if (win && win.webContents) {
+      win.webContents.send("downloaded", totalDownloaded)
+    }
   })
-  win.webContents.send("uploaded", node.statistics.get(node.statistics.Options.totalUploaded))
+  if (win && win.webContents) {
+    win.webContents.send("uploaded", node.statistics.get(node.statistics.Options.totalUploaded))
+  }
   node.contentsClient.on("uploaded", (uploaded) => {
     const totalUploaded = node.statistics.get(node.statistics.Options.totalUploaded)
-    win.webContents.send("uploaded", totalUploaded)
+    if (win && win.webContents) {
+      win.webContents.send("uploaded", totalUploaded)
+    }
   })
   node.on("destroyed", () => {
     console.log("[NODE]: stopped.")
   })
+  node.on("stopped", () => {
+    console.log("[NODE]: stopping...")
+    updateNodeStatus("stopped")
+    if (speedInterval) {
+      clearInterval(speedInterval)
+      speedInterval = null
+    }
+  })
   node.on("error", (error) => {
+    const errorPrefix = "Error has occured:"
+    if (win && win.webContents) {
+      if (error.code === "EADDRINUSE") {
+        const errorMessage = `${error.port} is already in use. Please choose another port.`
+        win.webContents.send("alertError", `${errorPrefix} ${errorMessage}`)
+      } else {
+        win.webContents.send("alertError", `${errorPrefix} ${error.message}`)
+      }
+    }
     console.log("[NODE]: error =", error)
   })
   console.log("[NODE]: initialized.")
@@ -264,35 +306,29 @@ ipcMain.on("nodeStorageInfo", () => {
   node.storageSpace.stats()
     .then((stats) => {
       console.log("[NODE]: Storage usage =", stats)
-      win.webContents.send("winStorageInfo", stats)
+      if (win && win.webContents) {
+        win.webContents.send("winStorageInfo", stats)
+      }
     })
 })
 
 ipcMain.on("nodeStop", () => {
-  nodeStop()
+  node.stop()
 })
 
 function nodeStart () {
+  if (autoReconnectInterval) {
+    clearInterval(autoReconnectInterval)
+  }
   console.log("[NODE]: starting...")
   updateNodeStatus("starting")
   node.start()
 }
 
-function nodeStop () {
-  updateNodeStatus("stopped")
-  if (speedInterval) {
-    clearInterval(speedInterval)
-    speedInterval = null
-  }
-
-  console.log("[NODE]: stopping...")
-  node.stop()
-}
-
-function updateNodeStatus (status) {
+function updateNodeStatus (status, seconds?: number) {
   nodeStatus = status
   if (win && win.webContents) {
-    win.webContents.send("nodeStatus", nodeStatus)
+    win.webContents.send("nodeStatus", nodeStatus, seconds)
   }
 }
 
@@ -302,17 +338,23 @@ function updateSettings () {
   ipcMain.on("settingsUpdate", (sender, key, value) => {
     node.settings.update(key, value)
   })
-  win.webContents.send("settings", node.settings.get())
+  if (win && win.webContents) {
+    win.webContents.send("settings", node.settings.get())
+  }
 }
 
 function updateWallet () {
   if (node.settings.get(node.settings.Options.skipBlockchain)) {
-    win.webContents.send("wallet", node.settings.get(node.settings.Options.walletAddress))
+    if (win && win.webContents) {
+      win.webContents.send("wallet", node.settings.get(node.settings.Options.walletAddress))
+    }
   } else {
     node.wallet._ready()
       .then(() => {
         _getBalance()
-        win.webContents.send("wallet", node.wallet.address)
+        if (win && win.webContents) {
+          win.webContents.send("wallet", node.wallet.address)
+        }
       })
       .catch((err: Error) => {
         console.log("failed to get wallet", err.message)
