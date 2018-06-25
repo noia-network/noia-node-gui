@@ -7,5 +7,6 @@
   <metric-speed [label]="'Upload speed'" [speed]="uploadSpeed"></metric-speed>
 </div>
 <div class="third-row" style="height: 95px;">
-  <button-connect [status]="status" (click)="onBtnClick()"></button-connect>
+  <button-connect [status]="status" [autoReconnectSeconds]="autoReconnectSeconds" (click)="onBtnClick()"></button-connect>
+  <div id="auto-reconnect">Auto reconnect <input type="checkbox" [checked]="autoReconnect" (click)="toggleAutoReconnect()"></div>
 </div>

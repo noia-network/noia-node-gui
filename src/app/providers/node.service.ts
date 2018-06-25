@@ -6,14 +6,17 @@ import { ToastrService } from "ngx-toastr"
 
 export enum NodeStatuses {
   stopped = "Connect",
-  starting = "Connecting...",
-  running = "Connected"
+  starting = "Connecting",
+  running = "Connected",
+  reconnecting = "Reconnecting"
 }
 
 @Injectable()
 export class NodeService {
   ipcRenderer: typeof ipcRenderer
   status: NodeStatuses = NodeStatuses.stopped
+  autoReconnect
+  autoReconnectSeconds
   timeConnected = "00:00:00"
   interval
   startedTime
@@ -32,6 +35,8 @@ export class NodeService {
   private walletAnnouncedSource = new Subject<any>()
   private walletBalanceAnnouncedSource = new Subject<any>()
   private walletEthBalanceAnnouncedSource = new Subject<any>()
+  private autoReconnectAnnouncedSource = new Subject<any>()
+  private autoReconnectSecondsAnnouncedSource = new Subject<any>()
 
   // Observable string streams
   connectionsAnnounced$ = this.connectionsAnnouncedSource.asObservable()
@@ -45,6 +50,8 @@ export class NodeService {
   walletAnnounced$ = this.walletAnnouncedSource.asObservable()
   walletBalanceAnnounced$ = this.walletBalanceAnnouncedSource.asObservable()
   walletEthBalanceAnnounced$ = this.walletEthBalanceAnnouncedSource.asObservable()
+  autoReconnectAnnounced$ = this.autoReconnectAnnouncedSource.asObservable()
+  autoReconnectSecondsAnnounced$ = this.autoReconnectSecondsAnnouncedSource.asObservable()
 
   sslPrivateKey: string
   sslCrt: string
@@ -175,17 +182,28 @@ export class NodeService {
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]
     })
-    this.ipcRenderer.on("nodeStarted", () => {
-      this.announceStatus(NodeStatuses.running)
+    this.ipcRenderer.on("nodeStatus", (sender, status, seconds) => {
+      if (status === "running") {
+        this.announceStatus(NodeStatuses.running)
+      } else if (status === "reconnecting") {
+        this.announceStatus(NodeStatuses.reconnecting)
+        this.announceAutoReconnectSeconds(seconds)
+      } else if (status === "starting") {
+        this.announceStatus(NodeStatuses.starting)
+      } else if (status === "stopped") {
+        this.announceDownloadSpeed(0)
+        this.announceUploadSpeed(0)
+        this.announceStatus(NodeStatuses.stopped)
+      }
     })
-    this.ipcRenderer.on("nodeStarting", () => {
-      this.announceStatus(NodeStatuses.starting)
+    this.ipcRenderer.on("autoReconnect", (sender, autoReconnect) => {
+      this.announceAutoReconnect(autoReconnect)
     })
-    this.ipcRenderer.on("nodeStopped", () => {
-      this.announceDownloadSpeed(0)
-      this.announceUploadSpeed(0)
-      this.announceStatus(NodeStatuses.stopped)
-    })
+  }
+
+  setAutoReconnect(autoReconnect: boolean) {
+    this.autoReconnect = autoReconnect
+    this.ipcRenderer.send("setAutoReconnect", autoReconnect)
   }
 
   start () {
@@ -231,10 +249,13 @@ export class NodeService {
     this.walletEthBalance = walletEthBalance
     this.walletEthBalanceAnnouncedSource.next(walletEthBalance)
   }
-  announceStatus(status: NodeStatuses) {
-
+  announceStatus(status: NodeStatuses, seconds?: number) {
     this.status = status
     this.statusAnnouncedSource.next(status)
+  }
+  announceAutoReconnectSeconds(seconds: number) {
+    this.autoReconnectSeconds = seconds
+    this.autoReconnectSecondsAnnouncedSource.next(seconds)
   }
   announceTimeConnected(timeConnected: string) {
     this.timeConnected = timeConnected
@@ -254,5 +275,9 @@ export class NodeService {
   }
   announceUploadSpeed(uploadSpeed: any) {
     this.uploadSpeedAnnouncedSource.next(uploadSpeed)
+  }
+  announceAutoReconnect(autoReconnect: boolean) {
+    this.autoReconnect = autoReconnect
+    this.autoReconnectAnnouncedSource.next(autoReconnect)
   }
 }

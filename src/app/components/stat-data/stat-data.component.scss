@@ -9,7 +9,10 @@ $white: rgb(255, 255, 255);
 }
 
 .value {
+  font-family: "Roboto", sans serif;
   font-size: 28px;
+  font-weight: 100;
+
   color: $white;
 }
 
@@ -24,4 +27,14 @@ $white: rgb(255, 255, 255);
 
 .label-white {
   color: $white;
+}
+
+.label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+}
+
+.unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
 }

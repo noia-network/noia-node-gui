@@ -1,13 +1,21 @@
 /* toastr */
 @import "~ngx-toastr/toastr.css";
+@import "~typeface-roboto/index.css";
+@import "~typeface-roboto-mono/index.css";
 .toast-container {
   margin-top: 20px;
 }
 
+
+
 /* global styles */
 html, body {
+  font-family: "Roboto", sans serif;
+  font-weight: 400;
+
   margin: 0;
   padding: 0;
 
   height: 100%;
+  
 }
