@@ -34,7 +34,6 @@ main.js
 npm-debug.log
 testem.log
 /typings
-package-lock.json
 
 # e2e
 /e2e/*.js
@@ -43,3 +42,4 @@ package-lock.json
 # System Files
 .DS_Store
 Thumbs.db
+.rpt2_cache
