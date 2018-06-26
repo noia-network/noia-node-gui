@@ -16,10 +16,16 @@ export class SettingsComponent implements OnInit {
     sslCrtBundle: this.node.sslCrtBundle
   }
 
+  settingsChanged: boolean;
+
   constructor (
     public node: NodeService,
     private toastr: ToastrService
-  ) {}
+  ) {
+    this.node.settingsChanged.subscribe((settingsChanged: boolean) => {
+      this.settingsChanged = settingsChanged
+    })
+  }
 
   ngOnInit () {}
 
@@ -29,7 +35,12 @@ export class SettingsComponent implements OnInit {
     this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey)
     this.node.updateSettings("ssl.crtPath", this.settings.sslCrt)
     this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle)
-    this.toastr.success("Please restart application for changes to take effect");
+    this.toastr.warning("Please restart application for changes to take effect")
+    this.node.enableRestart()
+  }
+
+  onRestart () {
+    this.node.restart()
   }
 
   onPortCheck () {

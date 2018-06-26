@@ -1,7 +1,7 @@
 import { BrowserWindow, app, ipcMain, screen, Menu } from "electron"
 import * as path from "path";
 import * as url from "url";
-const Node = require("noia-node")
+import Node from "@noia-network/node";
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -314,6 +314,11 @@ ipcMain.on("nodeStorageInfo", () => {
 
 ipcMain.on("nodeStop", () => {
   node.stop()
+})
+
+ipcMain.on("restartApp", () => {
+  app.relaunch()
+  app.quit()
 })
 
 function nodeStart () {

@@ -18,8 +18,11 @@
     <input-file [label]="'SSL crt'" [(value)]="settings.sslCrt" [style.display]="'none'"></input-file>
     <input-file [label]="'SSL crt bundle'" [(value)]="settings.sslCrtBundle" [style.display]="'none'"></input-file>
     <div class="flex-columns">
-      <div class="flex-column">
+      <div class="flex-column-button">
         <button class="button" (click)="onSave()">Save</button>
+      </div>
+      <div class="flex-column-button">
+        <button class="button" (click)="onRestart()" [ngClass]="{'button-orange': settingsChanged, 'button-invisible': !settingsChanged}">Restart</button>
       </div>
       <div class="flex-column flex-row-copyright">
         Copyrights © NOIA.

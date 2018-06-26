@@ -3,6 +3,7 @@ $dark-blue: rgb(35, 38, 100);
 $label-color: rgb(16, 20, 102);
 $green: rgb(65, 214, 90);
 $copyright-color: rgb(161, 164, 197);
+$orange: rgb(255, 165, 0);
 
 #check-port-link {
   cursor: pointer;
@@ -66,6 +67,15 @@ $copyright-color: rgb(161, 164, 197);
   box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
 }
 
+.button-orange {
+  background-color: $orange;
+  width: 102px;
+}
+
+.button-invisible {
+  display: none;
+}
+
 .input-group {
   position: relative;
   display: table;
@@ -110,3 +120,8 @@ $copyright-color: rgb(161, 164, 197);
   flex: 0 0 45%;
 }
 
+.flex-columns > .flex-column-button {
+  height: 90%;
+  width: 20%;
+  flex: 0 0 20%;
+}
