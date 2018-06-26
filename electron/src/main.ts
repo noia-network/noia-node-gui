@@ -316,6 +316,11 @@ ipcMain.on("nodeStop", () => {
   node.stop()
 })
 
+ipcMain.on("restartApp", () => {
+  app.relaunch()
+  app.quit()
+})
+
 function nodeStart () {
   if (autoReconnectInterval) {
     clearInterval(autoReconnectInterval)

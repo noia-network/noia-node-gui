@@ -3,6 +3,7 @@ import { ipcRenderer } from "electron"
 import { Subject } from "rxjs/Subject"
 import { differenceInSeconds, differenceInHours, differenceInMinutes } from "date-fns"
 import { ToastrService } from "ngx-toastr"
+import { BehaviorSubject } from "rxjs";
 
 export enum NodeStatuses {
   stopped = "Connect",
@@ -56,6 +57,9 @@ export class NodeService {
   sslPrivateKey: string
   sslCrt: string
   sslCrtBundle: string
+
+  private _settingsChanged = new BehaviorSubject<boolean>(false);
+  public settingsChanged = this._settingsChanged.asObservable();
 
   private _storage = {
     total: 0,
@@ -114,6 +118,11 @@ export class NodeService {
     return window && window.process && window.process.type
   }
 
+  restart () {
+    this.ipcRenderer.send("nodeStop")
+    this.ipcRenderer.send("restartApp")
+  }
+
   updateSettings (key, value) {
     if (key === "storage.dir") {
       this.storageDirectory = value
@@ -122,6 +131,10 @@ export class NodeService {
       this.wsPort = value
     }
     this.ipcRenderer.send("settingsUpdate", key, value)
+  }
+
+  enableRestart () {
+    this._settingsChanged.next(true)
   }
 
   setWallet (value) {
