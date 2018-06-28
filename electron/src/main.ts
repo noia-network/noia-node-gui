@@ -1,9 +1,10 @@
-import { BrowserWindow, app, ipcMain, screen, Menu } from "electron";
+import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray } from "electron";
 import * as path from "path";
 import * as url from "url";
 import Node from "@noia-network/node";
 
-let win, serve;
+let win: BrowserWindow | undefined, serve;
+let tray: Tray | undefined;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
 
@@ -69,12 +70,76 @@ function createWindow() {
 
   // win.webContents.openDevTools()
 
+  win.on("close", event => {
+    if (process.platform === "win32") {
+      event.preventDefault();
+
+      if (win != null) {
+        win.hide();
+      }
+    }
+  });
+
   // Emitted when the window is closed.
-  win.on("closed", () => {
+  win.on("closed", async (event: Event) => {
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    win = undefined;
+
+    if (node != null) {
+      await node.stop();
+      process.exit(0);
+    }
+  });
+}
+
+function createTray(): void {
+  if (process.platform !== "win32") {
+    return;
+  }
+
+  tray = new Tray(path.join(__dirname, "src/assets/noia-icon.png"));
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Show/Hide",
+      click: menuItem => {
+        if (win == null) {
+          return;
+        }
+
+        if (win.isVisible()) {
+          win.hide();
+        } else {
+          win.show();
+        }
+      }
+    },
+    { type: "separator" },
+    {
+      label: "Quit",
+      click: menuItem => {
+        if (win != null) {
+          console.log("Window closed from context menu.");
+          win.destroy();
+          win = undefined;
+        }
+      }
+    }
+  ]);
+  tray.setToolTip("NOIA Network Node");
+  tray.setContextMenu(contextMenu);
+
+  tray.on("click", () => {
+    if (win == null) {
+      return;
+    }
+
+    if (win.isVisible()) {
+      win.hide();
+    } else {
+      win.show();
+    }
   });
 }
 
@@ -82,7 +147,10 @@ try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  app.on("ready", createWindow);
+  app.on("ready", () => {
+    createWindow();
+    createTray();
+  });
 
   // Quit when all windows are closed.
   app.on("window-all-closed", () => {
@@ -109,7 +177,7 @@ try {
 
 // TODO: refactor.
 
-let node;
+let node: Node | undefined;
 let speedInterval;
 let walletInterval;
 let autoReconnectInterval;
@@ -301,7 +369,8 @@ ipcMain.on("nodeStart", info => {
 
 ipcMain.on("nodeMasterConnect", () => {
   console.log("[NODE]: connecting to master...");
-  node.master.connect();
+  // TODO: Fix any.
+  (node as any).master.connect();
 });
 
 ipcMain.on("nodeStorageInfo", () => {
@@ -345,7 +414,8 @@ function updateSettings() {
     node.settings.update(key, value);
   });
   if (win && win.webContents) {
-    win.webContents.send("settings", node.settings.get());
+    // TODO: Fix any
+    win.webContents.send("settings", (node as any).settings.get());
   }
 }
 
