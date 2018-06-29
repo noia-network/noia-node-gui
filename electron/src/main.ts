@@ -3,6 +3,7 @@ import * as path from "path";
 import * as url from "url";
 import Node from "@noia-network/node";
 
+let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
 let tray: Tray | undefined;
 const args = process.argv.slice(1);
@@ -71,7 +72,7 @@ function createWindow() {
   // win.webContents.openDevTools()
 
   win.on("close", event => {
-    if (process.platform === "win32") {
+    if (process.platform === "win32" && !isRestarting) {
       event.preventDefault();
 
       if (win != null) {
@@ -387,6 +388,7 @@ ipcMain.on("nodeStop", () => {
 });
 
 ipcMain.on("restartApp", () => {
+  isRestarting = true;
   app.relaunch();
   app.quit();
 });
