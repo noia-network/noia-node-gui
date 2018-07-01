@@ -199,9 +199,15 @@ ipcMain.on("nodeInit", () => {
   }
 
   console.log("[NODE]: initializing node...");
-  node = new Node({
-    userDataPath: app.getPath("userData")
-  });
+  try {
+    node = new Node({
+      userDataPath: app.getPath("userData")
+    });
+  }
+  catch (ex) {
+    win.webContents.send("alertError", ex.message);
+    return;
+  }  
 
   updateSettings();
   updateWallet();
@@ -289,7 +295,7 @@ ipcMain.on("nodeInit", () => {
     });
   }
   node.contentsClient.on("seeding", infoHashes => {
-    console.log("[NODE]: seeding contents =", infoHashes);
+    console.log("[NODE]: seeding contents =", infoHashes);   
     node.storageSpace.stats().then(stats => {
       console.log("[NODE]: Storage usage =", stats);
       if (win && win.webContents) {
@@ -375,6 +381,10 @@ ipcMain.on("nodeMasterConnect", () => {
 });
 
 ipcMain.on("nodeStorageInfo", () => {
+  if (!node){
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
+    return;
+  }
   node.storageSpace.stats().then(stats => {
     console.log("[NODE]: Storage usage =", stats);
     if (win && win.webContents) {
@@ -394,6 +404,10 @@ ipcMain.on("restartApp", () => {
 });
 
 function nodeStart() {
+  if (!node){
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
+    return;
+  }
   if (autoReconnectInterval) {
     clearInterval(autoReconnectInterval);
   }
