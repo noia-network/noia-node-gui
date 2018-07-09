@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from "@angular/core"
+import { Injectable, NgZone, EventEmitter } from "@angular/core"
 import { ipcRenderer } from "electron"
 import { Subject } from "rxjs/Subject"
 import { differenceInSeconds, differenceInHours, differenceInMinutes } from "date-fns"
