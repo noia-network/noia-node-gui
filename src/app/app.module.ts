@@ -15,6 +15,7 @@ import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 
 import { ElectronService } from "./providers/electron.service";
 import { NodeService } from "./providers/node.service";
+import { UtilsService } from "./providers/utils.service";
 
 import { WebviewDirective } from "./directives/webview.directive";
 
@@ -37,6 +38,7 @@ import { WalletComponent } from "./components/wallet/wallet.component";
 
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { ToastrModule } from "ngx-toastr";
+import { InputSliderComponent } from "./components/input-slider/input-slider.component";
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -51,6 +53,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     InputFileComponent,
     InputNumberComponent,
     InputStringComponent,
+    InputSliderComponent,
     MetricSpeedComponent,
     MetricStringComponent,
     MetricsComponent,
@@ -80,7 +83,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       }
     })
   ],
-  providers: [ElectronService, NodeService],
+  providers: [ElectronService, NodeService, UtilsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

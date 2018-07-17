@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from "@angular/core";
-import { NodeService } from "../../providers/node.service"
+import { Component, OnInit, NgZone } from "@angular/core";
+import { NodeService } from "../../providers/node.service";
 import { ToastrService } from "ngx-toastr";
+import { UtilsService } from "../../providers/utils.service";
 
 @Component({
   selector: "app-home",
@@ -11,39 +12,70 @@ export class SettingsComponent implements OnInit {
   settings = {
     port: this.node.wsPort,
     storageDir: this.node.storageDirectory,
+    storageSize: Number(this.node.storageSize),
     sslPrivateKey: this.node.sslPrivateKey,
     sslCrt: this.node.sslCrt,
     sslCrtBundle: this.node.sslCrtBundle
-  }
+  };
 
+  minValue: number = 1048577;
+  maxValue: number;
+  transformedSize: number;
+  units: string;
   settingsChanged: boolean;
 
-  constructor (
+  constructor(
     public node: NodeService,
+    public utilsService: UtilsService,
+    public ngZone: NgZone,
     private toastr: ToastrService
   ) {
     this.node.settingsChanged.subscribe((settingsChanged: boolean) => {
-      this.settingsChanged = settingsChanged
-    })
+      this.settingsChanged = settingsChanged;
+
+      const transformedBytes = this.utilsService.transformDataAndUnits(Number(this.node.storageSize));
+      this.transformedSize = transformedBytes.bytes;
+      this.units = transformedBytes.units;
+    });
+
+    this.utilsService.DiskChecked.subscribe((freeSpace: number) => {
+      ngZone.run(() => {
+        this.maxValue = freeSpace;
+      })
+    });
   }
 
-  ngOnInit () {}
-
-  onSave () {
-    this.node.updateSettings("sockets.ws.port", this.settings.port)
-    this.node.updateSettings("storage.dir", this.settings.storageDir)
-    this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey)
-    this.node.updateSettings("ssl.crtPath", this.settings.sslCrt)
-    this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle)
-    this.toastr.warning("Please restart application for changes to take effect")
-    this.node.enableRestart()
+  ngOnInit() {
+    this.utilsService.getFreeSpace(this.node.storageDirectory);
   }
 
-  onRestart () {
-    this.node.restart()
+  onSave() {
+    if (this.settings.storageSize === -1){
+      this.toastr.error("Not valid storage size");
+      return;
+    }
+
+    this.node.updateSettings("sockets.ws.port", this.settings.port);
+    this.node.updateSettings("storage.dir", this.settings.storageDir);
+    this.node.updateSettings("storage.size", this.settings.storageSize);
+    this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey);
+    this.node.updateSettings("ssl.crtPath", this.settings.sslCrt);
+    this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle);
+    this.toastr.warning("Please restart application for changes to take effect");
+    this.node.enableRestart();
   }
 
-  onPortCheck () {
-    window.require("electron").shell.openExternal(`https://www.yougetsignal.com/tools/open-ports`)
+  onRestart() {
+    this.node.restart();
+  }
+
+  storageChange(bytesTotal) {
+    const transformedBytes = this.utilsService.transformDataAndUnits(bytesTotal);
+    this.transformedSize = transformedBytes.bytes;
+    this.units = transformedBytes.units;
+  }
+
+  onPortCheck() {
+    window.require("electron").shell.openExternal(`https://www.yougetsignal.com/tools/open-ports`);
   }
 }

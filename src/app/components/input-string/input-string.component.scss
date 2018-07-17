@@ -1,17 +1,16 @@
 $light-blue: rgb(57, 64, 187);
-
+$green: rgb(65, 214, 90);
 :host {
   display: flex;
   justify-content: space-between;
-
-  padding: 30px;
+  padding: 30px 30px 40px 30px;
   border-bottom: 1px solid rgb(235, 235, 235);
 }
 
 .input-group {
   position: relative;
   width: 346px;
-  height: 18px;
+  height: 22px;
   border-bottom: 2px solid $light-blue;
 }
 
@@ -23,6 +22,27 @@ $light-blue: rgb(57, 64, 187);
 
 .input {
   width: 326px;
-  border: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
   color: $light-blue;
+}
+
+.btn-clipboard {
+  background-color: $green;
+  color: white;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  float: right;
+  user-select: none;
+  font-size: 12px;
+  -webkit-box-shadow: 1px 1px 20px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 1px 1px 20px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 20px 0px rgba(0, 0, 0, 0.5);
+}
+
+.btn-clipboard:hover {
+  cursor: pointer;
 }

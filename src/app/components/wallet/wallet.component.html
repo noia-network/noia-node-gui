@@ -1,7 +1,7 @@
 <div id="container">
   <sidebar></sidebar>
   <div id="settings">
-    <input-string [label]="'Wallet'" [(value)]="wallet"></input-string>
+    <input-string [label]="'Wallet'" [(value)]="wallet" [placeholder]="'Paste your ethereum wallet address here'"></input-string>
     <input-string [label]="'Balance (NOIA_TEST)'" [(value)]="walletBalance" [disabled]="true" [style.display]="'none'"></input-string>
     <input-string [label]="'Balance (ETH)'" [(value)]="walletEthBalance" [disabled]="true" [style.display]="'none'"></input-string>
     <div>

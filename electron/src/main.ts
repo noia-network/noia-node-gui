@@ -1,8 +1,13 @@
 import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray } from "electron";
 import * as path from "path";
 import * as url from "url";
+const opn = require("opn");
 import Node from "@noia-network/node";
+import { autoUpdater, UpdateInfo } from "electron-updater";
 
+const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
+
+let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
 let tray: Tray | undefined;
@@ -144,6 +149,11 @@ function createTray(): void {
   });
 }
 
+enum UpdateBoxOptions {
+  OpenGithub = "Open Github",
+  Later = "Later"
+}
+
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -151,6 +161,36 @@ try {
   app.on("ready", () => {
     createWindow();
     createTray();
+
+    // Updater
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = false;
+    updateCheckInterval = setInterval(() => {
+      try {
+        console.info("Checking for updates.");
+        autoUpdater.checkForUpdates();
+      } catch (error) {
+        console.error(`Failed to check for updates.`, error);
+      }
+    }, 10 * 60 * 1000);
+
+    autoUpdater.on("update-available", (info: UpdateInfo) => {
+      if (win == null) {
+        return;
+      }
+      const buttons: string[] = [UpdateBoxOptions.OpenGithub, UpdateBoxOptions.Later];
+
+      const buttonIndex = dialog.showMessageBox(win, {
+        title: "Update is available",
+        message: `New version is available: v${info.version}.`,
+        buttons: buttons
+      });
+
+      if (buttons[buttonIndex] === UpdateBoxOptions.OpenGithub) {
+        // Open github.
+        opn(GITHUB_RELEASES_URL);
+      }
+    });
   });
 
   // Quit when all windows are closed.
@@ -199,9 +239,14 @@ ipcMain.on("nodeInit", () => {
   }
 
   console.log("[NODE]: initializing node...");
-  node = new Node({
-    userDataPath: app.getPath("userData")
-  });
+  try {
+    node = new Node({
+      userDataPath: app.getPath("userData")
+    });
+  } catch (ex) {
+    win.webContents.send("alertError", ex.message);
+    return;
+  }
 
   updateSettings();
   updateWallet();
@@ -375,6 +420,10 @@ ipcMain.on("nodeMasterConnect", () => {
 });
 
 ipcMain.on("nodeStorageInfo", () => {
+  if (!node) {
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
+    return;
+  }
   node.storageSpace.stats().then(stats => {
     console.log("[NODE]: Storage usage =", stats);
     if (win && win.webContents) {
@@ -394,6 +443,10 @@ ipcMain.on("restartApp", () => {
 });
 
 function nodeStart() {
+  if (!node) {
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
+    return;
+  }
   if (autoReconnectInterval) {
     clearInterval(autoReconnectInterval);
   }

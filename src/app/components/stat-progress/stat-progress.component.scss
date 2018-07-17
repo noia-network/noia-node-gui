@@ -48,8 +48,7 @@ $white: rgb(255, 255, 255);
   height: 4px;
   border-radius: 8px;
   background-color: rgb(83, 86, 134);
-  width: 118px;
-  display: inline-block;
+  width: 155px;
 }
 .progress-bar div {
   height: inherit;
@@ -77,9 +76,15 @@ stat-data:not(:last-child) {
   color: $white;
 }
 
+:host .progress-bar-label-container {
+  width: 100%;
+  height: 14px;
+  position: relative;
+}
+
 :host .progress-bar-label {
   position: absolute;
-  right: 15px;
+  right: 28px;
 }
 :host .progress-bar-label span {
   font-size: 12px;
