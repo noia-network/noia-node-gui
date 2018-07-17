@@ -1,9 +1,7 @@
 $light-blue: rgb(57, 64, 187);
-
 :host {
   display: flex;
   justify-content: space-between;
-
   padding: 30px;
   border-bottom: 1px solid rgb(235, 235, 235);
 }
@@ -11,7 +9,7 @@ $light-blue: rgb(57, 64, 187);
 .input-group {
   position: relative;
   width: 346px;
-  height: 18px;
+  height: 22px;
   border-bottom: 2px solid $light-blue;
 }
 
@@ -23,6 +21,8 @@ $light-blue: rgb(57, 64, 187);
 
 .input {
   width: 326px;
-  border: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
   color: $light-blue;
 }

@@ -1,4 +1,13 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone
+} from "@angular/core";
+import { clipboard } from "electron";
+import { NodeService } from "../../providers/node.service";
 
 @Component({
   selector: "input-string",
@@ -6,16 +15,23 @@ import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
   styleUrls: ["./input-string.component.scss"]
 })
 export class InputStringComponent implements OnInit {
-  @Input() label: string
-  @Input() disabled: boolean
-  @Input() value: string
-  @Output() valueChange = new EventEmitter<string>()
+  @Input() label: string;
+  @Input() disabled: boolean;
+  @Input() value: string;
+  @Input() placeholder: string;
+  @Output() valueChange = new EventEmitter<string>();
 
-  constructor () {}
+  constructor(private zone: NgZone) {}
 
-  ngOnInit () {}
+  ngOnInit() {}
 
-  onInputChange (event) {
-    this.valueChange.emit(event.target.value)
+  onInputChange(event) {
+    this.value = event.target.value;
+    this.valueChange.emit(this.value);
+  }
+
+  onPaste() {
+    const { clipboard } = window.require('electron');
+    this.value = clipboard.readText();
   }
 }

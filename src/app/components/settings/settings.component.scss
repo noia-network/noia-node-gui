@@ -4,7 +4,6 @@ $label-color: rgb(16, 20, 102);
 $green: rgb(65, 214, 90);
 $copyright-color: rgb(161, 164, 197);
 $orange: rgb(255, 165, 0);
-
 #check-port-link {
   cursor: pointer;
   color: $label-color;
@@ -14,7 +13,6 @@ $orange: rgb(255, 165, 0);
 .flex-row {
   display: flex;
   justify-content: space-between;
-
   padding: 30px;
   border-bottom: 1px solid rgb(235, 235, 235);
 }
@@ -22,32 +20,19 @@ $orange: rgb(255, 165, 0);
 .flex-row-copyright {
   display: flex;
   justify-content: flex-end;
-
   margin-top: auto;
   padding: 38px;
   color: $copyright-color;
 }
 
-.settings > .label {
+.settings>.label {
   color: $label-color;
   font-size: 24px;
-}
-
-.input-number {
-  position: relative;
-  width: 346px;
-  border-bottom: 2px solid $light-blue;
 }
 
 .icon-port {
   position: absolute;
   right: 0;
-}
-
-.input {
-  width: 326px;
-  border: none;
-  color: $light-blue;
 }
 
 .button {
@@ -61,10 +46,9 @@ $orange: rgb(255, 165, 0);
   font-size: 18px;
   cursor: pointer;
   margin: 30px;
-
-  -webkit-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
-  -moz-box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
-  box-shadow: 10px 10px 77px -12px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 10px 10px 77px -12px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 10px 10px 77px -12px rgba(0, 0, 0, 0.75);
+  box-shadow: 10px 10px 77px -12px rgba(0, 0, 0, 0.75);
 }
 
 .button-orange {
@@ -76,32 +60,16 @@ $orange: rgb(255, 165, 0);
   display: none;
 }
 
-.input-group {
-  position: relative;
-  display: table;
-  border-collapse: separate;
-}
-
-.input-browse {
-  position: relative;
-  width: 346px;
-  border: none;
-  border-bottom: 2px solid $light-blue;
-}
-
 .icon-browse {
   position: absolute;
   right: 0;
-  top: -3px;
 }
 
 #container {
   display: flex;
   flex-direction: row;
-
   width: 726px;
-  height: 100%;
-  // border: 1px solid black;
+  height: 100%; // border: 1px solid black;
 }
 
 #settings {
@@ -115,12 +83,12 @@ $orange: rgb(255, 165, 0);
   flex-direction: row;
 }
 
-.flex-columns > .flex-column {
+.flex-columns>.flex-column {
   height: 90%;
   flex: 0 0 45%;
 }
 
-.flex-columns > .flex-column-button {
+.flex-columns>.flex-column-button {
   height: 90%;
   width: 20%;
   flex: 0 0 20%;
