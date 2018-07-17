@@ -3,22 +3,20 @@
   "directories": {
     "output": "app-builds"
   },
+  "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
   "win": {
     "icon": "dist",
-    "target": [
-      "portable"
-    ]
+    "target": ["nsis"],
+    "publish": ["github"]
   },
   "mac": {
     "icon": "dist",
-    "target": [
-      "dmg"
-    ]
+    "target": ["dmg", "zip"],
+    "publish": ["github"]
   },
   "linux": {
     "icon": "dist",
-    "target": [
-      "AppImage"
-    ]
+    "target": ["AppImage"],
+    "publish": ["github"]
   }
 }
