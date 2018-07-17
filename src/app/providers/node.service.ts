@@ -86,6 +86,13 @@ export class NodeService {
   set storageDirectory(value: string) {
     this._storageDirectory = value
   }
+  private _storageSize: string
+  get storageSize(): string {
+    return this._storageSize
+  }
+  set storageSize(value: string) {
+    this._storageSize = value
+  }
   private _wsPort: string
   get wsPort(): string {
     return this._wsPort
@@ -126,6 +133,9 @@ export class NodeService {
   updateSettings (key, value) {
     if (key === "storage.dir") {
       this.storageDirectory = value
+    }
+    if (key === "storage.size") {
+      this.storageSize = value
     }
     if (key === "sockets.ws.port") {
       this.wsPort = value
@@ -191,6 +201,7 @@ export class NodeService {
     this.ipcRenderer.on("settings", (sender, settings) => {
       this.wsPort = settings["sockets.ws.port"]
       this.storageDirectory = settings["storage.dir"]
+      this.storageSize = settings["storage.size"]
       this.sslPrivateKey = settings["ssl.privateKeyPath"]
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]

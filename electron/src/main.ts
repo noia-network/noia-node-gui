@@ -1,16 +1,13 @@
-import {
-  BrowserWindow,
-  app,
-  ipcMain,
-  screen,
-  Menu,
-  dialog,
-  Tray
-} from "electron";
+import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray } from "electron";
 import * as path from "path";
 import * as url from "url";
+const opn = require("opn");
 import Node from "@noia-network/node";
+import { autoUpdater, UpdateInfo } from "electron-updater";
 
+const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
+
+let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
 let tray: Tray | undefined;
@@ -152,6 +149,11 @@ function createTray(): void {
   });
 }
 
+enum UpdateBoxOptions {
+  OpenGithub = "Open Github",
+  Later = "Later"
+}
+
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -159,6 +161,36 @@ try {
   app.on("ready", () => {
     createWindow();
     createTray();
+
+    // Updater
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = false;
+    updateCheckInterval = setInterval(() => {
+      try {
+        console.info("Checking for updates.");
+        autoUpdater.checkForUpdates();
+      } catch (error) {
+        console.error(`Failed to check for updates.`, error);
+      }
+    }, 10 * 60 * 1000);
+
+    autoUpdater.on("update-available", (info: UpdateInfo) => {
+      if (win == null) {
+        return;
+      }
+      const buttons: string[] = [UpdateBoxOptions.OpenGithub, UpdateBoxOptions.Later];
+
+      const buttonIndex = dialog.showMessageBox(win, {
+        title: "Update is available",
+        message: `New version is available: v${info.version}.`,
+        buttons: buttons
+      });
+
+      if (buttons[buttonIndex] === UpdateBoxOptions.OpenGithub) {
+        // Open github.
+        opn(GITHUB_RELEASES_URL);
+      }
+    });
   });
 
   // Quit when all windows are closed.
@@ -223,10 +255,7 @@ ipcMain.on("nodeInit", () => {
     console.log("[NODE]: started.");
     speedInterval = setInterval(() => {
       if (win && win.webContents) {
-        win.webContents.send(
-          "downloadSpeed",
-          node.contentsClient.downloadSpeed
-        );
+        win.webContents.send("downloadSpeed", node.contentsClient.downloadSpeed);
       }
       if (win && win.webContents) {
         win.webContents.send("uploadSpeed", node.contentsClient.uploadSpeed);
@@ -246,9 +275,7 @@ ipcMain.on("nodeInit", () => {
         }
       }
       checkInternet(isConnected => {
-        const isConnectedPrefix = isConnected
-          ? ""
-          : "No internet connection, please connect to the internet. ";
+        const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. ";
         console.log(`[NODE]: connection with master closed, info =`, info);
         if (win && win.webContents) {
           win.webContents.send("autoReconnect", autoReconnect);
@@ -268,14 +295,9 @@ ipcMain.on("nodeInit", () => {
             updateNodeStatus("reconnecting", secondsLeft);
           }, 1 * 1000);
         }
-        const autoReconnectPostfix = autoReconnect
-          ? `, will try to reconnect in  ${seconds} seconds`
-          : "";
+        const autoReconnectPostfix = autoReconnect ? `, will try to reconnect in  ${seconds} seconds` : "";
         if (win && win.webContents) {
-          win.webContents.send(
-            "alertError",
-            `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`
-          );
+          win.webContents.send("alertError", `${isConnectedPrefix}Failed to connect to master${autoReconnectPostfix}`);
         }
       });
       node.stop();
@@ -302,11 +324,7 @@ ipcMain.on("nodeInit", () => {
   }
   if (node.clientSockets.ws) {
     node.clientSockets.ws.on("listening", info => {
-      console.log(
-        `[NODE]: listening for ${info.ssl ? "WSS" : "WS"} requests on port ${
-          info.port
-        }.`
-      );
+      console.log(`[NODE]: listening for ${info.ssl ? "WSS" : "WS"} requests on port ${info.port}.`);
     });
     node.clientSockets.ws.on("connections", count => {
       console.log(`[NODE]: WS Clients connections = ${count}`);
@@ -332,45 +350,31 @@ ipcMain.on("nodeInit", () => {
     const uploaded = `size = ${info.resource.size}`;
     const uploadedMB = `size = ${info.resource.size / 1000 / 1000}`;
     if (info.resource.url) {
-      console.log(
-        `[NODE]: HTTP sent to ${client} ${resource} ${uploadedMB} ${resourceUrl}`
-      );
+      console.log(`[NODE]: HTTP sent to ${client} ${resource} ${uploadedMB} ${resourceUrl}`);
     } else {
       console.log(`[NODE]: WS sent to ${client} ${resource} ${uploadedMB}`);
     }
   });
   const totalTimeInterval = setInterval(() => {
-    const totalTimeConnected = node.statistics.get(
-      node.statistics.Options.totalTimeConnected
-    );
+    const totalTimeConnected = node.statistics.get(node.statistics.Options.totalTimeConnected);
     if (win && win.webContents) {
       win.webContents.send("timeConnected", totalTimeConnected);
     }
   }, 1 * 1000);
   if (win && win.webContents) {
-    win.webContents.send(
-      "downloaded",
-      node.statistics.get(node.statistics.Options.totalDownloaded)
-    );
+    win.webContents.send("downloaded", node.statistics.get(node.statistics.Options.totalDownloaded));
   }
   node.contentsClient.on("downloaded", downloaded => {
-    const totalDownloaded = node.statistics.get(
-      node.statistics.Options.totalDownloaded
-    );
+    const totalDownloaded = node.statistics.get(node.statistics.Options.totalDownloaded);
     if (win && win.webContents) {
       win.webContents.send("downloaded", totalDownloaded);
     }
   });
   if (win && win.webContents) {
-    win.webContents.send(
-      "uploaded",
-      node.statistics.get(node.statistics.Options.totalUploaded)
-    );
+    win.webContents.send("uploaded", node.statistics.get(node.statistics.Options.totalUploaded));
   }
   node.contentsClient.on("uploaded", uploaded => {
-    const totalUploaded = node.statistics.get(
-      node.statistics.Options.totalUploaded
-    );
+    const totalUploaded = node.statistics.get(node.statistics.Options.totalUploaded);
     if (win && win.webContents) {
       win.webContents.send("uploaded", totalUploaded);
     }
@@ -390,9 +394,7 @@ ipcMain.on("nodeInit", () => {
     const errorPrefix = "Error has occured:";
     if (win && win.webContents) {
       if (error.code === "EADDRINUSE") {
-        const errorMessage = `${
-          error.port
-        } is already in use. Please choose another port.`;
+        const errorMessage = `${error.port} is already in use. Please choose another port.`;
         win.webContents.send("alertError", `${errorPrefix} ${errorMessage}`);
       } else {
         win.webContents.send("alertError", `${errorPrefix} ${error.message}`);
@@ -419,10 +421,7 @@ ipcMain.on("nodeMasterConnect", () => {
 
 ipcMain.on("nodeStorageInfo", () => {
   if (!node) {
-    win.webContents.send(
-      "alertError",
-      "Node failed to start. Restart the application as an administrator."
-    );
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
     return;
   }
   node.storageSpace.stats().then(stats => {
@@ -445,10 +444,7 @@ ipcMain.on("restartApp", () => {
 
 function nodeStart() {
   if (!node) {
-    win.webContents.send(
-      "alertError",
-      "Node failed to start. Restart the application as an administrator."
-    );
+    win.webContents.send("alertError", "Node failed to start. Restart the application as an administrator.");
     return;
   }
   if (autoReconnectInterval) {
@@ -468,11 +464,7 @@ function updateNodeStatus(status, seconds?: number) {
 
 function updateSettings() {
   // Temporarily set default public master address to minimise steps for user
-  node.settings.update(
-    node.settings.Options.masterAddress,
-    "ws://csl-masters.noia.network:5565",
-    ""
-  ); // TODO: expose to settings
+  node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565", ""); // TODO: expose to settings
   ipcMain.on("settingsUpdate", (sender, key, value) => {
     node.settings.update(key, value);
   });
@@ -485,10 +477,7 @@ function updateSettings() {
 function updateWallet() {
   if (node.settings.get(node.settings.Options.skipBlockchain)) {
     if (win && win.webContents) {
-      win.webContents.send(
-        "wallet",
-        node.settings.get(node.settings.Options.walletAddress)
-      );
+      win.webContents.send("wallet", node.settings.get(node.settings.Options.walletAddress));
     }
   } else {
     node.wallet

@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { UtilsService } from "../../providers/utils.service";
 
 @Component({
   selector: "stat-progress",
@@ -9,15 +10,24 @@ export class StatProgressComponent implements OnInit, OnChanges {
   @Input() bytesTotal: number
   @Input() bytesUsed: number
   @Input() label: string
-  bytes: number
-  units: string
+  bytesUsedTransformed: number
+  bytesTotalTransformed: number
+  unitsUsed: string
+  unitsTotal: string
   percentage: number
 
-  constructor() {}
+  constructor(private utilsService: UtilsService) {}
 
   refresh() {
-    this.percentage = Math.round(this.bytesUsed / this.bytesTotal * 100)
-    this.transformDataAndUnits()
+    const percentage = this.bytesUsed / this.bytesTotal * 100;    
+    this.percentage = Math.round(percentage > 100 ? 100 : percentage);
+    const transformedUsedBytes = this.utilsService.transformDataAndUnits(this.bytesUsed);
+    this.bytesUsedTransformed = transformedUsedBytes.bytes;
+    this.unitsUsed = transformedUsedBytes.units;
+
+    const transformedTotalBytes = this.utilsService.transformDataAndUnits(this.bytesTotal);
+    this.bytesTotalTransformed = transformedTotalBytes.bytes;
+    this.unitsTotal = transformedTotalBytes.units;
   }
 
   ngOnInit() {
@@ -26,29 +36,5 @@ export class StatProgressComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.refresh()
-  }
-
-  transformDataAndUnits() {
-    const B = 1
-    const kB = 1000 * B
-    const MB = 1000 * kB
-    const GB = 1000 * MB
-    const TB = 1000 * GB
-    if (this.bytesTotal <= kB) {
-      this.units = "B"
-      this.bytes = this.bytesTotal
-    } else if (this.bytesTotal <= MB) {
-      this.units = "kB"
-      this.bytes = Math.round(this.bytesTotal / kB)
-    } else if (this.bytesTotal <= GB) {
-      this.units = "MB"
-      this.bytes = Math.round(this.bytesTotal / MB)
-    } else if (this.bytesTotal <= TB) {
-      this.units = "GB"
-      this.bytes = Math.round(this.bytesTotal / GB)
-    } else {
-      this.units = "TB"
-      this.bytes = Math.round(this.bytesTotal / TB)
-    }
   }
 }
