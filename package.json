@@ -18,9 +18,9 @@
     "electron:build": "rollup -c ./electron/rollup.config.js",
     "electron:serve": "wait-on http-get://localhost:4200/ && npm run electron:build && electron . --serve",
     "electron:local": "npm run build:prod && electron .",
-    "electron:linux": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --linux",
-    "electron:windows": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --windows nsis --ia32 --x64",
-    "electron:mac": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --mac"
+    "electron:linux": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --linux --publish=never",
+    "electron:windows": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --windows nsis --ia32 --x64 --publish=never",
+    "electron:mac": "npm run build:prod && cross-env DEBUG=electron-builder npx electron-builder build --mac --publish=never"
   },
   "dependencies": {
     "@angular/animations": "^5.2.9",
@@ -58,8 +58,8 @@
     "copyfiles": "1.2.0",
     "core-js": "2.4.1",
     "dotenv": "5.0.0",
-    "electron": "1.8.3",
-    "electron-builder": "20.0.5",
+    "electron": "2.0.5",
+    "electron-builder": "20.22.0",
     "electron-reload": "1.2.2",
     "enhanced-resolve": "3.3.0",
     "fs-extra": "5.0.0",
