@@ -165,14 +165,17 @@ try {
     // Updater
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = false;
-    updateCheckInterval = setInterval(() => {
+    const updateCheckerHandler = () => {
       try {
         console.info("Checking for updates.");
         autoUpdater.checkForUpdates();
       } catch (error) {
         console.error(`Failed to check for updates.`, error);
       }
-    }, 10 * 60 * 1000);
+    };
+
+    updateCheckerHandler();
+    updateCheckInterval = setInterval(updateCheckerHandler, 10 * 60 * 1000);
 
     autoUpdater.on("update-available", (info: UpdateInfo) => {
       if (win == null) {
