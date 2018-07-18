@@ -60,7 +60,6 @@
     "dotenv": "5.0.0",
     "electron": "1.8.3",
     "electron-builder": "20.0.5",
-    "electron-rebuild": "^1.7.3",
     "electron-reload": "1.2.2",
     "enhanced-resolve": "3.3.0",
     "fs-extra": "5.0.0",
