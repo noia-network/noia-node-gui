@@ -33,5 +33,6 @@ export class InputStringComponent implements OnInit {
   onPaste() {
     const { clipboard } = window.require('electron');
     this.value = clipboard.readText();
+    this.valueChange.emit(this.value);
   }
 }
