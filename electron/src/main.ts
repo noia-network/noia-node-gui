@@ -1,11 +1,8 @@
-import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray } from "electron";
+import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray, shell } from "electron";
 import * as path from "path";
 import * as url from "url";
-const opn = require("opn");
 import Node from "@noia-network/node";
 import { autoUpdater, UpdateInfo } from "electron-updater";
-
-const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
 
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
@@ -98,6 +95,11 @@ function createWindow() {
       process.exit(0);
     }
   });
+  
+  win.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    shell.openExternal(url);
+  });
 }
 
 function createTray(): void {
@@ -149,11 +151,6 @@ function createTray(): void {
   });
 }
 
-enum UpdateBoxOptions {
-  OpenGithub = "Open Github",
-  Later = "Later"
-}
-
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -181,18 +178,8 @@ try {
       if (win == null) {
         return;
       }
-      const buttons: string[] = [UpdateBoxOptions.OpenGithub, UpdateBoxOptions.Later];
-
-      const buttonIndex = dialog.showMessageBox(win, {
-        title: "Update is available",
-        message: `New version is available: v${info.version}.`,
-        buttons: buttons
-      });
-
-      if (buttons[buttonIndex] === UpdateBoxOptions.OpenGithub) {
-        // Open github.
-        opn(GITHUB_RELEASES_URL);
-      }
+      
+      win.webContents.send("alertUpdate", `New version is available: v${info.version}`, "Update is available");
     });
   });
 

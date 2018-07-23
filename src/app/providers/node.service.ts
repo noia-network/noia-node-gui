@@ -12,6 +12,8 @@ export enum NodeStatuses {
   reconnecting = "Reconnecting"
 }
 
+const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
+
 @Injectable()
 export class NodeService {
   ipcRenderer: typeof ipcRenderer
@@ -110,14 +112,47 @@ export class NodeService {
     private zone: NgZone
   ) {
     this.announceStorage(this.storage)
+
     if (this.isElectron()) {
       this.ipcRenderer = window.require("electron").ipcRenderer
     }
+
     this.ipcRenderer.on("alertError", (sender, message) => {
       this.zone.run(() => {
         this.toastr.error(message)
       })
-    })
+    });
+
+    const notificationOptions = { positionClass: 'toast-bottom-left', closeButton: true, disableTimeOut: true, enableHtml: true };
+
+    this.ipcRenderer.on("alertUpdate", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Update now</div></a>`, 
+          title, 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertDownloadFailed", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.warning(
+          message + `<br /><div type="button" class="toast-btn">Try Again</div>
+            <a href="${GITHUB_RELEASES_URL}" target="_blank"><div type="button" class="toast-btn clear">Open GitHub</div></a>`, 
+          title, 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertUpdateFailed", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.warning(
+          message + `<br /><div type="button" class="toast-btn">Save installation file</div>`, 
+          title, 
+          notificationOptions);
+      })
+    });
+
     this.init()
   }
 
