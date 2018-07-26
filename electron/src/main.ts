@@ -2,7 +2,7 @@ import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray, shell } from "
 import * as path from "path";
 import * as url from "url";
 import Node from "@noia-network/node";
-import { autoUpdater, UpdateInfo } from "electron-updater";
+import { AutoUpdater } from "./auto-updater";
 
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
@@ -95,8 +95,8 @@ function createWindow() {
       process.exit(0);
     }
   });
-  
-  win.webContents.on('new-window', function(e, url) {
+
+  win.webContents.on("new-window", function(e, url) {
     e.preventDefault();
     shell.openExternal(url);
   });
@@ -159,28 +159,8 @@ try {
     createWindow();
     createTray();
 
-    // Updater
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = false;
-    const updateCheckerHandler = () => {
-      try {
-        console.info("Checking for updates.");
-        autoUpdater.checkForUpdates();
-      } catch (error) {
-        console.error(`Failed to check for updates.`, error);
-      }
-    };
-
-    updateCheckerHandler();
-    updateCheckInterval = setInterval(updateCheckerHandler, 10 * 60 * 1000);
-
-    autoUpdater.on("update-available", (info: UpdateInfo) => {
-      if (win == null) {
-        return;
-      }
-      
-      win.webContents.send("alertUpdate", `New version is available: v${info.version}`, "Update is available");
-    });
+    const autoUpdater = new AutoUpdater(win);
+    autoUpdater.start();
   });
 
   // Quit when all windows are closed.
