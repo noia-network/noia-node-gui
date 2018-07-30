@@ -7,6 +7,7 @@ import { AutoUpdater } from "./auto-updater";
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
+let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
@@ -98,6 +99,22 @@ function createWindow() {
 
   win.webContents.on("new-window", function(e, url) {
     e.preventDefault();
+
+    if (url.includes('toastr-download')) {
+      autoUpdater.download();
+      return;
+    }
+
+    if (url.includes('toastr-save-update')) {
+      autoUpdater.saveUpdate();
+      return;
+    }
+
+    if (url.includes('toastr-retry-install')) {
+      autoUpdater.saveUpdate();
+      return;
+    }
+
     shell.openExternal(url);
   });
 }
@@ -159,7 +176,7 @@ try {
     createWindow();
     createTray();
 
-    const autoUpdater = new AutoUpdater(win);
+    autoUpdater = new AutoUpdater(win);
     autoUpdater.start();
   });
 

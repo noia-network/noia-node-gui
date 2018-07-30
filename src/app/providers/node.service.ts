@@ -125,11 +125,36 @@ export class NodeService {
 
     const notificationOptions = { positionClass: 'toast-bottom-left', closeButton: true, disableTimeOut: true, enableHtml: true };
 
-    this.ipcRenderer.on("alertUpdate", (sender, message, title) => {
+    this.ipcRenderer.on("alertUpdate", (sender, message, title, isDarwin, isRetry) => {
+      this.zone.run(() => {
+        if (isDarwin) {
+          this.toastr.success(
+            message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open Github Releases</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
+            title, 
+            notificationOptions);
+        } else {
+          this.toastr.success(
+            message + `<br /><a href="toastr-download" target="_blank"><div class="toast-btn">Update now</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
+            title, 
+            notificationOptions);
+        }
+      })
+    });
+
+    this.ipcRenderer.on("alertDownloading", (sender) => {
       this.zone.run(() => {
         this.toastr.success(
-          message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Update now</div></a>`, 
-          title, 
+          "Update is downloading", 
+          "Downloading", 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertInstalling", (sender) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          "Update is installing", 
+          "Installing", 
           notificationOptions);
       })
     });
@@ -137,8 +162,8 @@ export class NodeService {
     this.ipcRenderer.on("alertDownloadFailed", (sender, message, title) => {
       this.zone.run(() => {
         this.toastr.warning(
-          message + `<br /><div type="button" class="toast-btn">Try Again</div>
-            <a href="${GITHUB_RELEASES_URL}" target="_blank"><div type="button" class="toast-btn clear">Open GitHub</div></a>`, 
+          message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open GitHub Releases</div></a>
+            <a href="toastr-download" target="_blank"><div class="toast-btn">Try Again</div></a>`, 
           title, 
           notificationOptions);
       })
@@ -146,9 +171,28 @@ export class NodeService {
 
     this.ipcRenderer.on("alertUpdateFailed", (sender, message, title) => {
       this.zone.run(() => {
-        this.toastr.warning(
-          message + `<br /><div type="button" class="toast-btn">Save installation file</div>`, 
-          title, 
+        this.toastr.error(
+          message + `<br /><a href="toastr-save-update" target="_blank"><div class="toast-btn">Save File</div></a>
+            <a href="toastr-retry-install" target="_blank"><div class="toast-btn">Try Again</div></a>`,
+          title,
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertSaveSuccess", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          message,
+          title,
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertSaveError", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.error(
+          message,
+          title,
           notificationOptions);
       })
     });
