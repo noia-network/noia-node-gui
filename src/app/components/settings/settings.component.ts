@@ -18,7 +18,7 @@ export class SettingsComponent implements OnInit {
     sslCrtBundle: this.node.sslCrtBundle
   };
 
-  minValue: number = 1048577;
+  minValue: number = 104857600;
   maxValue: number;
   transformedSize: number;
   units: string;
@@ -40,7 +40,8 @@ export class SettingsComponent implements OnInit {
 
     this.utilsService.DiskChecked.subscribe((freeSpace: number) => {
       ngZone.run(() => {
-        this.maxValue = freeSpace;
+        // 90% of available storage
+        this.maxValue = freeSpace * 0.9;
       })
     });
   }

@@ -26,12 +26,13 @@ export class InputStringComponent implements OnInit {
   ngOnInit() {}
 
   onInputChange(event) {
-    this.value = event.target.value;
+    this.value = event.target.value.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
     this.valueChange.emit(this.value);
   }
 
   onPaste() {
     const { clipboard } = window.require('electron');
     this.value = clipboard.readText();
+    this.valueChange.emit(this.value);
   }
 }

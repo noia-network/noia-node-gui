@@ -18,7 +18,7 @@ $light-blue: rgb(57, 64, 187);
 }
 
 .slider {
-  width: 100%;
+  width: 99%;
   margin-top: 8px;
   border: none;
   -webkit-appearance: none;
@@ -66,14 +66,14 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .value-label-min {
-  width: 30px;
+  width: 50px;
   float: left;
   color: $light-blue;
   font-size: 14px;
 }
 
 .value-label-max{
-  margin-left: 5px;
+  margin-left: 8px;
   float: right;
   color: $light-blue;
   font-size: 14px;

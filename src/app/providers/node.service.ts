@@ -12,6 +12,8 @@ export enum NodeStatuses {
   reconnecting = "Reconnecting"
 }
 
+const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
+
 @Injectable()
 export class NodeService {
   ipcRenderer: typeof ipcRenderer
@@ -110,14 +112,91 @@ export class NodeService {
     private zone: NgZone
   ) {
     this.announceStorage(this.storage)
+
     if (this.isElectron()) {
       this.ipcRenderer = window.require("electron").ipcRenderer
     }
+
     this.ipcRenderer.on("alertError", (sender, message) => {
       this.zone.run(() => {
         this.toastr.error(message)
       })
-    })
+    });
+
+    const notificationOptions = { positionClass: 'toast-bottom-left', closeButton: true, disableTimeOut: true, enableHtml: true };
+
+    this.ipcRenderer.on("alertUpdate", (sender, message, title, isDarwin, isRetry) => {
+      this.zone.run(() => {
+        if (isDarwin) {
+          this.toastr.success(
+            message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open Github Releases</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
+            title, 
+            notificationOptions);
+        } else {
+          this.toastr.success(
+            message + `<br /><a href="toastr-download" target="_blank"><div class="toast-btn">Update now</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
+            title, 
+            notificationOptions);
+        }
+      })
+    });
+
+    this.ipcRenderer.on("alertDownloading", (sender) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          "Update is downloading", 
+          "Downloading", 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertInstalling", (sender) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          "Update is installing", 
+          "Installing", 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertDownloadFailed", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.warning(
+          message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open GitHub Releases</div></a>
+            <a href="toastr-download" target="_blank"><div class="toast-btn">Try Again</div></a>`, 
+          title, 
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertUpdateFailed", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.error(
+          message + `<br /><a href="toastr-save-update" target="_blank"><div class="toast-btn">Save File</div></a>
+            <a href="toastr-retry-install" target="_blank"><div class="toast-btn">Try Again</div></a>`,
+          title,
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertSaveSuccess", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.success(
+          message,
+          title,
+          notificationOptions);
+      })
+    });
+
+    this.ipcRenderer.on("alertSaveError", (sender, message, title) => {
+      this.zone.run(() => {
+        this.toastr.error(
+          message,
+          title,
+          notificationOptions);
+      })
+    });
+
     this.init()
   }
 

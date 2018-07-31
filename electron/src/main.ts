@@ -1,15 +1,13 @@
-import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray } from "electron";
+import { BrowserWindow, app, ipcMain, screen, Menu, dialog, Tray, shell } from "electron";
 import * as path from "path";
 import * as url from "url";
-const opn = require("opn");
 import Node from "@noia-network/node";
-import { autoUpdater, UpdateInfo } from "electron-updater";
-
-const GITHUB_RELEASES_URL = "https://github.com/noia-network/noia-node-gui/releases";
+import { AutoUpdater } from "./auto-updater";
 
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
+let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
@@ -98,6 +96,27 @@ function createWindow() {
       process.exit(0);
     }
   });
+
+  win.webContents.on("new-window", function(e, url) {
+    e.preventDefault();
+
+    if (url.includes('toastr-download')) {
+      autoUpdater.download();
+      return;
+    }
+
+    if (url.includes('toastr-save-update')) {
+      autoUpdater.saveUpdate();
+      return;
+    }
+
+    if (url.includes('toastr-retry-install')) {
+      autoUpdater.saveUpdate();
+      return;
+    }
+
+    shell.openExternal(url);
+  });
 }
 
 function createTray(): void {
@@ -149,11 +168,6 @@ function createTray(): void {
   });
 }
 
-enum UpdateBoxOptions {
-  OpenGithub = "Open Github",
-  Later = "Later"
-}
-
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -162,35 +176,8 @@ try {
     createWindow();
     createTray();
 
-    // Updater
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = false;
-    updateCheckInterval = setInterval(() => {
-      try {
-        console.info("Checking for updates.");
-        autoUpdater.checkForUpdates();
-      } catch (error) {
-        console.error(`Failed to check for updates.`, error);
-      }
-    }, 10 * 60 * 1000);
-
-    autoUpdater.on("update-available", (info: UpdateInfo) => {
-      if (win == null) {
-        return;
-      }
-      const buttons: string[] = [UpdateBoxOptions.OpenGithub, UpdateBoxOptions.Later];
-
-      const buttonIndex = dialog.showMessageBox(win, {
-        title: "Update is available",
-        message: `New version is available: v${info.version}.`,
-        buttons: buttons
-      });
-
-      if (buttons[buttonIndex] === UpdateBoxOptions.OpenGithub) {
-        // Open github.
-        opn(GITHUB_RELEASES_URL);
-      }
-    });
+    autoUpdater = new AutoUpdater(win);
+    autoUpdater.start();
   });
 
   // Quit when all windows are closed.
