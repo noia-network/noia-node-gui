@@ -4,10 +4,13 @@ $label-color: rgb(16, 20, 102);
 $green: rgb(65, 214, 90);
 $copyright-color: rgb(161, 164, 197);
 $orange: rgb(255, 165, 0);
-#check-port-link {
+#check-port-link {  
+  padding: 5px;
+  position: absolute;
+  left: 580px;
+  font-size: 14px;
   cursor: pointer;
   color: $label-color;
-  text-decoration: underline;
 }
 
 .flex-row {

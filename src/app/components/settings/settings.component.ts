@@ -11,6 +11,8 @@ import { UtilsService } from "../../providers/utils.service";
 export class SettingsComponent implements OnInit {
   settings = {
     port: this.node.wsPort,
+    controlPort: this.node.controlPort,
+    dataPort: this.node.dataPort,
     storageDir: this.node.storageDirectory,
     storageSize: Number(this.node.storageSize),
     sslPrivateKey: this.node.sslPrivateKey,
@@ -57,6 +59,8 @@ export class SettingsComponent implements OnInit {
     }
 
     this.node.updateSettings("sockets.ws.port", this.settings.port);
+    this.node.updateSettings("sockets.wrtc.control.port", this.settings.controlPort);
+    this.node.updateSettings("sockets.wrtc.data.port", this.settings.dataPort);
     this.node.updateSettings("storage.dir", this.settings.storageDir);
     this.node.updateSettings("storage.size", this.settings.storageSize);
     this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey);

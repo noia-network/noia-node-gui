@@ -102,6 +102,20 @@ export class NodeService {
   set wsPort(value: string) {
     this._wsPort = value
   }
+  private _controlPort: string
+  get controlPort(): string {
+    return this._controlPort
+  }
+  set controlPort(value: string) {
+    this._controlPort = value
+  }
+  private _dataPort: string
+  get dataPort(): string {
+    return this._dataPort
+  }
+  set dataPort(value: string) {
+    this._dataPort = value
+  }
 
   public wallet = "loading..."
   public walletBalance = "loading..."
@@ -219,6 +233,12 @@ export class NodeService {
     if (key === "sockets.ws.port") {
       this.wsPort = value
     }
+    if (key === "sockets.wrtc.control.port") {
+      this.controlPort = value
+    }
+    if (key === "sockets.wrtc.data.port") {
+      this.dataPort = value
+    }
     this.ipcRenderer.send("settingsUpdate", key, value)
   }
 
@@ -279,6 +299,8 @@ export class NodeService {
     })
     this.ipcRenderer.on("settings", (sender, settings) => {
       this.wsPort = settings["sockets.ws.port"]
+      this.controlPort = settings["sockets.wrtc.control.port"]
+      this.dataPort = settings["sockets.wrtc.data.port"]
       this.storageDirectory = settings["storage.dir"]
       this.storageSize = settings["storage.size"]
       this.sslPrivateKey = settings["ssl.privateKeyPath"]

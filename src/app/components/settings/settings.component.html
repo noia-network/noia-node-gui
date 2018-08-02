@@ -1,16 +1,13 @@
 <div id="container">
   <sidebar></sidebar>
   <div id="settings">
-    <input-number [label]="'Network port'" [(value)]="settings.port" [placeholder]="'Enter network port here'"></input-number>
+    <input-number [label]="'WebRTC control port'" [(value)]="settings.controlPort" [placeholder]="'Enter WebRTC control port here'"></input-number>
+    <input-number [label]="'WebRTC data port'" [(value)]="settings.dataPort" [placeholder]="'Enter WebRTC data port here'"></input-number>
     <!-- TODO: remove style attr -->
-    <div id="check-port-link" (click)="onPortCheck()" style="
-    margin-left: 10px;
-    margin-top: 10px;
-    position: absolute;
-    left: 256px;
-    top: 22px;
-    font-size: 14px;
-    ">
+    <div id="check-port-link" (click)="onPortCheck()" style="top: 27px;">
+      Check port
+    </div>
+    <div id="check-port-link" (click)="onPortCheck()" style="top: 105px;">
       Check port
     </div>
     <input-dir [label]="'Storage directory'" [(value)]="settings.storageDir" [placeholder]="'Select storage directory here'"></input-dir>
