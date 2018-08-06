@@ -30,6 +30,7 @@
     "diskusage-ng": "^0.2.3",
     "electron-updater": "^3.0.1",
     "fs-extra": "5.0.0",
+    "jsonfile": "^4.0.0",
     "ngx-toastr": "^8.3.0",
     "os": "^0.1.1",
     "randombytes": "^2.0.6",

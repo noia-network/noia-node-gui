@@ -3,12 +3,16 @@ import * as path from "path";
 import * as url from "url";
 import Node from "@noia-network/node";
 import { AutoUpdater } from "./auto-updater";
+import { SettingsGuiDto } from "./settings-gui";
+import jsonfile from "jsonfile";
+import fs from "fs";
 
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
 let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
+let guiSettings: SettingsGuiDto;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
 
@@ -75,7 +79,7 @@ function createWindow() {
   // win.webContents.openDevTools()
 
   win.on("close", event => {
-    if (process.platform === "win32" && !isRestarting) {
+    if (process.platform === "win32" && !isRestarting && guiSettings.isMinimizeToTray === true) {
       event.preventDefault();
 
       if (win != null) {
@@ -221,7 +225,9 @@ ipcMain.on("nodeInit", () => {
     if (win && win.webContents) {
       updateWallet();
       updateSettings();
+      updateGuiSettings();
     }
+
     return;
   }
 
@@ -236,6 +242,7 @@ ipcMain.on("nodeInit", () => {
   }
 
   updateSettings();
+  updateGuiSettings();
   updateWallet();
   refreshBalance();
   node.on("started", () => {
@@ -454,10 +461,30 @@ function updateSettings() {
   node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565", ""); // TODO: expose to settings
   ipcMain.on("settingsUpdate", (sender, key, value) => {
     node.settings.update(key, value);
-  });
+  });  
   if (win && win.webContents) {
     // TODO: Fix any
     win.webContents.send("settings", (node as any).settings.get());
+  }
+}
+
+function updateGuiSettings() {
+  const guiSettingsPath = path.resolve(path.join(node.settings.opts.userDataPath, "settings-gui.json"));
+  
+  if (!fs.existsSync(guiSettingsPath)) {
+    guiSettings = { isMinimizeToTray: true };
+    jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
+  } else {
+    guiSettings = jsonfile.readFileSync(guiSettingsPath);
+  }
+
+  ipcMain.on("guiSettingsUpdate", (sender, key, value) => {
+    guiSettings[key] = value;
+    jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
+  });
+  
+  if (win && win.webContents) {
+    win.webContents.send("guiSettings", guiSettings);
   }
 }
 

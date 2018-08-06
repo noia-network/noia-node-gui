@@ -24,6 +24,7 @@ import { ButtonConnectComponent } from "./components/button-connect/button-conne
 import { InputDirComponent } from "./components/input-dir/input-dir.component";
 import { InputFileComponent } from "./components/input-file/input-file.component";
 import { InputNumberComponent } from "./components/input-number/input-number.component";
+import { InputCheckboxComponent } from "./components/input-checkbox/input-checkbox.component";
 import { InputStringComponent } from "./components/input-string/input-string.component";
 import { MetricSpeedComponent } from "./components/metric-speed/metric-speed.component";
 import { MetricStringComponent } from "./components/metric-string/metric-string.component";
@@ -54,6 +55,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     InputNumberComponent,
     InputStringComponent,
     InputSliderComponent,
+    InputCheckboxComponent,
     MetricSpeedComponent,
     MetricStringComponent,
     MetricsComponent,

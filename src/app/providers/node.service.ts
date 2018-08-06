@@ -116,6 +116,13 @@ export class NodeService {
   set dataPort(value: string) {
     this._dataPort = value
   }
+  private _isMinimizeToTray: boolean
+  get isMinimizeToTray(): boolean {
+    return this._isMinimizeToTray
+  }
+  set isMinimizeToTray(value: boolean) {
+    this._isMinimizeToTray = value
+  }
 
   public wallet = "loading..."
   public walletBalance = "loading..."
@@ -212,7 +219,7 @@ export class NodeService {
     });
 
     this.init()
-  }
+  } 
 
   isElectron = () => {
     return window && window.process && window.process.type
@@ -240,6 +247,13 @@ export class NodeService {
       this.dataPort = value
     }
     this.ipcRenderer.send("settingsUpdate", key, value)
+  }
+
+  updateGuiSettings (key, value) {
+    if (key === "isMinimizeToTray") {
+      this.isMinimizeToTray = value;
+    }
+    this.ipcRenderer.send("guiSettingsUpdate", key, value)
   }
 
   enableRestart () {
@@ -306,6 +320,9 @@ export class NodeService {
       this.sslPrivateKey = settings["ssl.privateKeyPath"]
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]
+    })
+    this.ipcRenderer.on("guiSettings", (sender, guiSettings) => {
+      this.isMinimizeToTray = guiSettings["isMinimizeToTray"];
     })
     this.ipcRenderer.on("nodeStatus", (sender, status, seconds) => {
       if (status === "running") {

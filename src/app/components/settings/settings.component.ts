@@ -17,7 +17,8 @@ export class SettingsComponent implements OnInit {
     storageSize: Number(this.node.storageSize),
     sslPrivateKey: this.node.sslPrivateKey,
     sslCrt: this.node.sslCrt,
-    sslCrtBundle: this.node.sslCrtBundle
+    sslCrtBundle: this.node.sslCrtBundle,
+    isMinimizeToTray: this.node.isMinimizeToTray
   };
 
   minValue: number = 104857600;
@@ -66,6 +67,7 @@ export class SettingsComponent implements OnInit {
     this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey);
     this.node.updateSettings("ssl.crtPath", this.settings.sslCrt);
     this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle);
+    this.node.updateGuiSettings("isMinimizeToTray", this.settings.isMinimizeToTray);
     this.toastr.warning("Please restart application for changes to take effect");
     this.node.enableRestart();
   }

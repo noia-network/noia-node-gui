@@ -7,7 +7,7 @@ $orange: rgb(255, 165, 0);
 #check-port-link {  
   padding: 5px;
   position: absolute;
-  left: 580px;
+  left: 458px;
   font-size: 14px;
   cursor: pointer;
   color: $label-color;
@@ -78,7 +78,7 @@ $orange: rgb(255, 165, 0);
 #settings {
   display: flex;
   flex-direction: column;
-  width: 604px;
+  width: 600px;  
 }
 
 .flex-columns {
@@ -95,4 +95,11 @@ $orange: rgb(255, 165, 0);
   height: 90%;
   width: 20%;
   flex: 0 0 20%;
+}
+
+.scrolable-container {
+  position: relative;
+  height: 360px;
+  overflow-y: scroll;
+  border-bottom: 1px solid rgb(235, 235, 235);
 }
