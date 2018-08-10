@@ -6,9 +6,14 @@ import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
   styleUrls: ["./input-checkbox.component.scss"]
 })
 export class InputCheckboxComponent implements OnInit {
-  @Input() label: string;
-  @Input() value: boolean;
-  @Output() valueChange = new EventEmitter<boolean>();
+  @Input()
+  label: string;
+  @Input()
+  value: boolean;
+  @Output()
+  valueChange = new EventEmitter<boolean>();
+
+  public disabled: boolean = false;
 
   constructor() {}
 
