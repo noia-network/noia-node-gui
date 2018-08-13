@@ -215,6 +215,7 @@ let walletInterval;
 let autoReconnectInterval;
 let secondsLeft;
 let autoReconnect = true;
+let timesReconnected = 0;
 let nodeStatus = "stopped";
 ipcMain.on("nodeInit", () => {
   if (win && win.webContents) {
@@ -257,6 +258,7 @@ ipcMain.on("nodeInit", () => {
     }, 250);
   });
   node.master.on("connected", () => {
+    timesReconnected = 0;
     updateNodeStatus("running");
     console.log("[NODE]: connected to master.");
   });
@@ -274,7 +276,7 @@ ipcMain.on("nodeInit", () => {
         if (win && win.webContents) {
           win.webContents.send("autoReconnect", autoReconnect);
         }
-        const seconds = 60;
+        const seconds = Math.pow(2, timesReconnected);
         if (autoReconnect) {
           secondsLeft = seconds;
           if (autoReconnectInterval) {
@@ -285,6 +287,11 @@ ipcMain.on("nodeInit", () => {
             secondsLeft -= 1;
             if (secondsLeft <= 0) {
               nodeStart();
+
+              // maximum 1024 seconds for reconnection
+              if (timesReconnected < 11) {
+                timesReconnected++;
+              }
             }
             updateNodeStatus("reconnecting", secondsLeft);
           }, 1 * 1000);
