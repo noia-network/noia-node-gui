@@ -257,9 +257,18 @@ ipcMain.on("nodeInit", () => {
       }
     }, 250);
   });
-  node.master.on("connected", () => {
+  node.master.on("connected", (info) => {
     timesReconnected = 0;
     updateNodeStatus("running");
+
+    if (node.settings.opts.wrtcDataIp === info.params.externalIp) {
+      node.settings.update(node.settings.Options.wrtcDataIp, info.params.externalIp);
+
+      isRestarting = true;
+      app.relaunch();
+      app.quit();
+    }
+
     console.log("[NODE]: connected to master.");
   });
   node.master.on("closed", info => {
@@ -273,7 +282,7 @@ ipcMain.on("nodeInit", () => {
       checkInternet(isConnected => {
         const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. ";
         console.log(`[NODE]: connection with master closed, info =`, info);
-        if (win && win.webContents) {
+        if (win && win.webContents) { 
           win.webContents.send("autoReconnect", autoReconnect);
         }
         const seconds = Math.pow(2, timesReconnected);
