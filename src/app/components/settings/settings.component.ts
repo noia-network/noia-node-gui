@@ -23,6 +23,7 @@ export class SettingsComponent implements OnInit {
 
   minValue: number = 104857600;
   maxValue: number;
+  isWindows: boolean = this.node.platformName === "win32";
   transformedSize: number;
   units: string;
   settingsChanged: boolean;
@@ -54,7 +55,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onSave() {
-    if (this.settings.storageSize === -1){
+    if (this.settings.storageSize === -1) {
       this.toastr.error("Not valid storage size");
       return;
     }

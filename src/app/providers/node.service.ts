@@ -28,6 +28,7 @@ export class NodeService {
 
   // Observable string sources
   private connectionsAnnouncedSource = new Subject<any>()
+  private platformAnnouncedSource = new Subject<any>()
   private statusAnnouncedSource = new Subject<any>()
   private storageAnnouncedSource = new Subject<any>()
   private downloadSpeedAnnouncedSource = new Subject<any>()
@@ -43,6 +44,7 @@ export class NodeService {
 
   // Observable string streams
   connectionsAnnounced$ = this.connectionsAnnouncedSource.asObservable()
+  platoformAnnounced$ = this.platformAnnouncedSource.asObservable()
   statusAnnounced$ = this.statusAnnouncedSource.asObservable()
   storageAnnounced$ = this.storageAnnouncedSource.asObservable()
   downloadSpeedAnnounced$ = this.downloadSpeedAnnouncedSource.asObservable()
@@ -74,6 +76,7 @@ export class NodeService {
   set storage(value) {
     this._storage = value
   }
+  public platformName: string = "";
 
   public connections = 0
   public downloadSpeed = 0
@@ -150,13 +153,13 @@ export class NodeService {
       this.zone.run(() => {
         if (isDarwin) {
           this.toastr.success(
-            message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open Github Releases</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
-            title, 
+            message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open Github Releases</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`,
+            title,
             notificationOptions);
         } else {
           this.toastr.success(
-            message + `<br /><a href="toastr-download" target="_blank"><div class="toast-btn">Update now</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`, 
-            title, 
+            message + `<br /><a href="toastr-download" target="_blank"><div class="toast-btn">Update now</div></a><div class="toast-btn">${isRetry ? "Try Again" : "Later"}</div>`,
+            title,
             notificationOptions);
         }
       })
@@ -165,8 +168,8 @@ export class NodeService {
     this.ipcRenderer.on("alertDownloading", (sender) => {
       this.zone.run(() => {
         this.toastr.success(
-          "Update is downloading", 
-          "Downloading", 
+          "Update is downloading",
+          "Downloading",
           notificationOptions);
       })
     });
@@ -174,8 +177,8 @@ export class NodeService {
     this.ipcRenderer.on("alertInstalling", (sender) => {
       this.zone.run(() => {
         this.toastr.success(
-          "Update is installing", 
-          "Installing", 
+          "Update is installing",
+          "Installing",
           notificationOptions);
       })
     });
@@ -184,8 +187,8 @@ export class NodeService {
       this.zone.run(() => {
         this.toastr.warning(
           message + `<br /><a href="${GITHUB_RELEASES_URL}" target="_blank"><div class="toast-btn">Open GitHub Releases</div></a>
-            <a href="toastr-download" target="_blank"><div class="toast-btn">Try Again</div></a>`, 
-          title, 
+            <a href="toastr-download" target="_blank"><div class="toast-btn">Try Again</div></a>`,
+          title,
           notificationOptions);
       })
     });
@@ -219,18 +222,18 @@ export class NodeService {
     });
 
     this.init()
-  } 
+  }
 
   isElectron = () => {
     return window && window.process && window.process.type
   }
 
-  restart () {
+  restart() {
     this.ipcRenderer.send("nodeStop")
     this.ipcRenderer.send("restartApp")
   }
 
-  updateSettings (key, value) {
+  updateSettings(key, value) {
     if (key === "storage.dir") {
       this.storageDirectory = value
     }
@@ -249,29 +252,33 @@ export class NodeService {
     this.ipcRenderer.send("settingsUpdate", key, value)
   }
 
-  updateGuiSettings (key, value) {
+  updateGuiSettings(key, value) {
     if (key === "isMinimizeToTray") {
       this.isMinimizeToTray = value;
     }
     this.ipcRenderer.send("guiSettingsUpdate", key, value)
   }
 
-  enableRestart () {
+  enableRestart() {
     this._settingsChanged.next(true)
   }
 
-  setWallet (value) {
+  setWallet(value) {
     this.wallet = value
     this.ipcRenderer.send("setWallet", this.wallet)
   }
 
-  refreshBalance () {
+  refreshBalance() {
     this.ipcRenderer.send("refreshBalance")
   }
 
-  init () {
+  init() {
     this.ipcRenderer.send("nodeInit")
     this.ipcRenderer.send("nodeStorageInfo")
+    this.ipcRenderer.on("platform", (_, platformName) => {
+      this.platformName = platformName;
+      this.announcePlatform(platformName);
+    });
     this.ipcRenderer.on("connections", (sender, connections) => {
       this.connections = connections
       this.announceConnections(connections)
@@ -348,7 +355,7 @@ export class NodeService {
     this.ipcRenderer.send("setAutoReconnect", autoReconnect)
   }
 
-  start () {
+  start() {
     this.ipcRenderer.send("nodeStart")
     // this.ipcRenderer.send("nodeMasterConnect")
   }
@@ -357,11 +364,11 @@ export class NodeService {
   //   this.ipcRenderer.send("nodeMasterConnect")
   // }
 
-  storageInfo () {
+  storageInfo() {
     this.ipcRenderer.send("nodeStorageInfo")
   }
 
-  stop () {
+  stop() {
     this.ipcRenderer.send("nodeStop")
   }
 
@@ -373,6 +380,11 @@ export class NodeService {
     const minutesString = minutes.length === 1 ? `0${minutes}` : minutes
     const hoursString = hours.length === 1 ? `0${hours}` : hours
     this.announceTimeConnected(`${hoursString}:${minutesString}:${secondsString}`)
+  }
+
+  announcePlatform(platoformName: string) {
+    this.platformName = platoformName;
+    this.platformAnnouncedSource.next(platoformName);
   }
 
   announceConnections(connections: number) {
