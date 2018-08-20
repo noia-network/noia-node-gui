@@ -4,10 +4,13 @@ $label-color: rgb(16, 20, 102);
 $green: rgb(65, 214, 90);
 $copyright-color: rgb(161, 164, 197);
 $orange: rgb(255, 165, 0);
-#check-port-link {
+#check-port-link {  
+  padding: 5px;
+  position: absolute;
+  left: 458px;
+  font-size: 14px;
   cursor: pointer;
   color: $label-color;
-  text-decoration: underline;
 }
 
 .flex-row {
@@ -75,7 +78,7 @@ $orange: rgb(255, 165, 0);
 #settings {
   display: flex;
   flex-direction: column;
-  width: 604px;
+  width: 600px;  
 }
 
 .flex-columns {
@@ -92,4 +95,11 @@ $orange: rgb(255, 165, 0);
   height: 90%;
   width: 20%;
   flex: 0 0 20%;
+}
+
+.scrolable-container {
+  position: relative;
+  height: 360px;
+  overflow-y: scroll;
+  border-bottom: 1px solid rgb(235, 235, 235);
 }

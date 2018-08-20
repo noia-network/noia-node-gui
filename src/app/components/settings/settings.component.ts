@@ -11,11 +11,14 @@ import { UtilsService } from "../../providers/utils.service";
 export class SettingsComponent implements OnInit {
   settings = {
     port: this.node.wsPort,
+    controlPort: this.node.controlPort,
+    dataPort: this.node.dataPort,
     storageDir: this.node.storageDirectory,
     storageSize: Number(this.node.storageSize),
     sslPrivateKey: this.node.sslPrivateKey,
     sslCrt: this.node.sslCrt,
-    sslCrtBundle: this.node.sslCrtBundle
+    sslCrtBundle: this.node.sslCrtBundle,
+    isMinimizeToTray: this.node.isMinimizeToTray
   };
 
   minValue: number = 104857600;
@@ -57,11 +60,14 @@ export class SettingsComponent implements OnInit {
     }
 
     this.node.updateSettings("sockets.ws.port", this.settings.port);
+    this.node.updateSettings("sockets.wrtc.control.port", this.settings.controlPort);
+    this.node.updateSettings("sockets.wrtc.data.port", this.settings.dataPort);
     this.node.updateSettings("storage.dir", this.settings.storageDir);
     this.node.updateSettings("storage.size", this.settings.storageSize);
     this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey);
     this.node.updateSettings("ssl.crtPath", this.settings.sslCrt);
     this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle);
+    this.node.updateGuiSettings("isMinimizeToTray", this.settings.isMinimizeToTray);
     this.toastr.warning("Please restart application for changes to take effect");
     this.node.enableRestart();
   }

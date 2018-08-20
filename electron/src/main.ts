@@ -3,12 +3,16 @@ import * as path from "path";
 import * as url from "url";
 import Node from "@noia-network/node";
 import { AutoUpdater } from "./auto-updater";
+import { SettingsGuiDto } from "./settings-gui";
+import jsonfile from "jsonfile";
+import fs from "fs";
 
 let updateCheckInterval: NodeJS.Timer | undefined;
 let isRestarting: boolean = false;
 let win: BrowserWindow | undefined, serve;
 let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
+let guiSettings: SettingsGuiDto;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
 
@@ -75,7 +79,7 @@ function createWindow() {
   // win.webContents.openDevTools()
 
   win.on("close", event => {
-    if (process.platform === "win32" && !isRestarting) {
+    if (process.platform === "win32" && !isRestarting && guiSettings.isMinimizeToTray === true) {
       event.preventDefault();
 
       if (win != null) {
@@ -211,6 +215,7 @@ let walletInterval;
 let autoReconnectInterval;
 let secondsLeft;
 let autoReconnect = true;
+let timesReconnected = 0;
 let nodeStatus = "stopped";
 ipcMain.on("nodeInit", () => {
   if (win && win.webContents) {
@@ -221,7 +226,9 @@ ipcMain.on("nodeInit", () => {
     if (win && win.webContents) {
       updateWallet();
       updateSettings();
+      updateGuiSettings();
     }
+
     return;
   }
 
@@ -236,6 +243,7 @@ ipcMain.on("nodeInit", () => {
   }
 
   updateSettings();
+  updateGuiSettings();
   updateWallet();
   refreshBalance();
   node.on("started", () => {
@@ -249,8 +257,18 @@ ipcMain.on("nodeInit", () => {
       }
     }, 250);
   });
-  node.master.on("connected", () => {
+  node.master.on("connected", (info) => {
+    timesReconnected = 0;
     updateNodeStatus("running");
+
+    if (node.settings.opts.wrtcDataIp === info.params.externalIp) {
+      node.settings.update(node.settings.Options.wrtcDataIp, info.params.externalIp);
+
+      isRestarting = true;
+      app.relaunch();
+      app.quit();
+    }
+
     console.log("[NODE]: connected to master.");
   });
   node.master.on("closed", info => {
@@ -264,10 +282,10 @@ ipcMain.on("nodeInit", () => {
       checkInternet(isConnected => {
         const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. ";
         console.log(`[NODE]: connection with master closed, info =`, info);
-        if (win && win.webContents) {
+        if (win && win.webContents) { 
           win.webContents.send("autoReconnect", autoReconnect);
         }
-        const seconds = 60;
+        const seconds = Math.pow(2, timesReconnected);
         if (autoReconnect) {
           secondsLeft = seconds;
           if (autoReconnectInterval) {
@@ -278,6 +296,11 @@ ipcMain.on("nodeInit", () => {
             secondsLeft -= 1;
             if (secondsLeft <= 0) {
               nodeStart();
+
+              // maximum 1024 seconds for reconnection
+              if (timesReconnected < 11) {
+                timesReconnected++;
+              }
             }
             updateNodeStatus("reconnecting", secondsLeft);
           }, 1 * 1000);
@@ -454,10 +477,30 @@ function updateSettings() {
   node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565", ""); // TODO: expose to settings
   ipcMain.on("settingsUpdate", (sender, key, value) => {
     node.settings.update(key, value);
-  });
+  });  
   if (win && win.webContents) {
     // TODO: Fix any
     win.webContents.send("settings", (node as any).settings.get());
+  }
+}
+
+function updateGuiSettings() {
+  const guiSettingsPath = path.resolve(path.join(node.settings.opts.userDataPath, "settings-gui.json"));
+  
+  if (!fs.existsSync(guiSettingsPath)) {
+    guiSettings = { isMinimizeToTray: true };
+    jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
+  } else {
+    guiSettings = jsonfile.readFileSync(guiSettingsPath);
+  }
+
+  ipcMain.on("guiSettingsUpdate", (sender, key, value) => {
+    guiSettings[key] = value;
+    jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
+  });
+  
+  if (win && win.webContents) {
+    win.webContents.send("guiSettings", guiSettings);
   }
 }
 

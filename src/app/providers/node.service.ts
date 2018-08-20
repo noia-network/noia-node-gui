@@ -102,6 +102,27 @@ export class NodeService {
   set wsPort(value: string) {
     this._wsPort = value
   }
+  private _controlPort: string
+  get controlPort(): string {
+    return this._controlPort
+  }
+  set controlPort(value: string) {
+    this._controlPort = value
+  }
+  private _dataPort: string
+  get dataPort(): string {
+    return this._dataPort
+  }
+  set dataPort(value: string) {
+    this._dataPort = value
+  }
+  private _isMinimizeToTray: boolean
+  get isMinimizeToTray(): boolean {
+    return this._isMinimizeToTray
+  }
+  set isMinimizeToTray(value: boolean) {
+    this._isMinimizeToTray = value
+  }
 
   public wallet = "loading..."
   public walletBalance = "loading..."
@@ -198,7 +219,7 @@ export class NodeService {
     });
 
     this.init()
-  }
+  } 
 
   isElectron = () => {
     return window && window.process && window.process.type
@@ -219,7 +240,20 @@ export class NodeService {
     if (key === "sockets.ws.port") {
       this.wsPort = value
     }
+    if (key === "sockets.wrtc.control.port") {
+      this.controlPort = value
+    }
+    if (key === "sockets.wrtc.data.port") {
+      this.dataPort = value
+    }
     this.ipcRenderer.send("settingsUpdate", key, value)
+  }
+
+  updateGuiSettings (key, value) {
+    if (key === "isMinimizeToTray") {
+      this.isMinimizeToTray = value;
+    }
+    this.ipcRenderer.send("guiSettingsUpdate", key, value)
   }
 
   enableRestart () {
@@ -279,11 +313,16 @@ export class NodeService {
     })
     this.ipcRenderer.on("settings", (sender, settings) => {
       this.wsPort = settings["sockets.ws.port"]
+      this.controlPort = settings["sockets.wrtc.control.port"]
+      this.dataPort = settings["sockets.wrtc.data.port"]
       this.storageDirectory = settings["storage.dir"]
       this.storageSize = settings["storage.size"]
       this.sslPrivateKey = settings["ssl.privateKeyPath"]
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]
+    })
+    this.ipcRenderer.on("guiSettings", (sender, guiSettings) => {
+      this.isMinimizeToTray = guiSettings["isMinimizeToTray"];
     })
     this.ipcRenderer.on("nodeStatus", (sender, status, seconds) => {
       if (status === "running") {
