@@ -101,7 +101,7 @@ function createWindow() {
     }
   });
 
-  win.webContents.on("new-window", function(e, url) {
+  win.webContents.on("new-window", function (e, url) {
     e.preventDefault();
 
     if (url.includes('toastr-download')) {
@@ -218,6 +218,7 @@ let autoReconnect = true;
 let timesReconnected = 0;
 let nodeStatus = "stopped";
 ipcMain.on("nodeInit", () => {
+  win.webContents.send("platform", process.platform);
   if (win && win.webContents) {
     win.webContents.send("nodeStatus", nodeStatus);
     win.webContents.send("autoReconnect", autoReconnect);
@@ -261,9 +262,8 @@ ipcMain.on("nodeInit", () => {
     timesReconnected = 0;
     updateNodeStatus("running");
 
-    if (node.settings.opts.wrtcDataIp === info.params.externalIp) {
+    if (node.settings.settings[node.settings.Options.wrtcDataIp] !== info.params.externalIp) {
       node.settings.update(node.settings.Options.wrtcDataIp, info.params.externalIp);
-
       isRestarting = true;
       app.relaunch();
       app.quit();
@@ -282,7 +282,7 @@ ipcMain.on("nodeInit", () => {
       checkInternet(isConnected => {
         const isConnectedPrefix = isConnected ? "" : "No internet connection, please connect to the internet. ";
         console.log(`[NODE]: connection with master closed, info =`, info);
-        if (win && win.webContents) { 
+        if (win && win.webContents) {
           win.webContents.send("autoReconnect", autoReconnect);
         }
         const seconds = Math.pow(2, timesReconnected);
@@ -477,7 +477,7 @@ function updateSettings() {
   node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565", ""); // TODO: expose to settings
   ipcMain.on("settingsUpdate", (sender, key, value) => {
     node.settings.update(key, value);
-  });  
+  });
   if (win && win.webContents) {
     // TODO: Fix any
     win.webContents.send("settings", (node as any).settings.get());
@@ -486,7 +486,7 @@ function updateSettings() {
 
 function updateGuiSettings() {
   const guiSettingsPath = path.resolve(path.join(node.settings.opts.userDataPath, "settings-gui.json"));
-  
+
   if (!fs.existsSync(guiSettingsPath)) {
     guiSettings = { isMinimizeToTray: true };
     jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
@@ -498,7 +498,7 @@ function updateGuiSettings() {
     guiSettings[key] = value;
     jsonfile.writeFileSync(guiSettingsPath, guiSettings, { spaces: 2 });
   });
-  
+
   if (win && win.webContents) {
     win.webContents.send("guiSettings", guiSettings);
   }
