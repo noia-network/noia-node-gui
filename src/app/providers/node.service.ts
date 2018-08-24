@@ -126,6 +126,13 @@ export class NodeService {
   set isMinimizeToTray(value: boolean) {
     this._isMinimizeToTray = value
   }
+  private _natPmp: boolean
+  get natPmp(): boolean {
+    return this._natPmp
+  }
+  set natPmp(value: boolean) {
+    this._natPmp = value
+  }
 
   public wallet = "loading..."
   public walletBalance = "loading..."
@@ -249,6 +256,9 @@ export class NodeService {
     if (key === "sockets.wrtc.data.port") {
       this.dataPort = value
     }
+    if (key === "natPmp") {
+      this.natPmp = value
+    }
     this.ipcRenderer.send("settingsUpdate", key, value)
   }
 
@@ -327,6 +337,7 @@ export class NodeService {
       this.sslPrivateKey = settings["ssl.privateKeyPath"]
       this.sslCrt = settings["ssl.crtPath"]
       this.sslCrtBundle = settings["ssl.crtBundlePath"]
+      this.natPmp = settings["natPmp"]
     })
     this.ipcRenderer.on("guiSettings", (sender, guiSettings) => {
       this.isMinimizeToTray = guiSettings["isMinimizeToTray"];

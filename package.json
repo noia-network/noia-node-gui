@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@angular/animations": "^5.2.9",
-    "@noia-network/node": "0.4.0",
+    "@noia-network/node": "0.5.0",
     "@types/fs-extra": "^5.0.4",
     "date-fns": "^1.29.0",
     "diskusage-ng": "^0.2.3",

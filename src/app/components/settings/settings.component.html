@@ -18,6 +18,7 @@
       <input-file [label]="'SSL crt'" [(value)]="settings.sslCrt" [style.display]="'none'"></input-file>
       <input-file [label]="'SSL crt bundle'" [(value)]="settings.sslCrtBundle" [style.display]="'none'"></input-file>
       <input-checkbox [label]="'Minimize on close'" [(value)]="settings.isMinimizeToTray" [style.display]="isWindows ? '' : 'none'"></input-checkbox>
+      <input-checkbox [label]="'Enable NAT-PMP'" [(value)]="settings.natPmp"></input-checkbox>
     </div>
     <div class="flex-columns">
       <div class="flex-column-button">

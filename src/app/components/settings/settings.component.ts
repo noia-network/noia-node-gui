@@ -18,6 +18,7 @@ export class SettingsComponent implements OnInit {
     sslPrivateKey: this.node.sslPrivateKey,
     sslCrt: this.node.sslCrt,
     sslCrtBundle: this.node.sslCrtBundle,
+    natPmp: this.node.natPmp,
     isMinimizeToTray: this.node.isMinimizeToTray
   };
 
@@ -67,6 +68,7 @@ export class SettingsComponent implements OnInit {
     this.node.updateSettings("storage.size", this.settings.storageSize);
     this.node.updateSettings("ssl.privateKeyPath", this.settings.sslPrivateKey);
     this.node.updateSettings("ssl.crtPath", this.settings.sslCrt);
+    this.node.updateSettings("natPmp", this.settings.natPmp);
     this.node.updateSettings("ssl.crtBundlePath", this.settings.sslCrtBundle);
     this.node.updateGuiSettings("isMinimizeToTray", this.settings.isMinimizeToTray);
     this.toastr.warning("Please restart application for changes to take effect");
