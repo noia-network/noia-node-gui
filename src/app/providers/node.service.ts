@@ -154,6 +154,15 @@ export class NodeService {
       })
     });
 
+    this.ipcRenderer.on("alertWarning", (sender, message) => {
+      this.zone.run(() => {
+        const warningToast = this.toastr.warning(message, "Warning", {disableTimeOut: true});
+        warningToast.onHidden.subscribe(() => {
+          this.ipcRenderer.send("dismissWarning");
+        });
+      })
+    });
+
     const notificationOptions = { positionClass: 'toast-bottom-left', closeButton: true, disableTimeOut: true, enableHtml: true };
 
     this.ipcRenderer.on("alertUpdate", (sender, message, title, isDarwin, isRetry) => {

@@ -327,6 +327,7 @@ ipcMain.on("nodeInit", () => {
   node.master.on("seed", info => {
     console.log("[NODE][IN]: seed request.");
   });
+  listenForWarnings();
   if (node.clientSockets.http) {
     node.clientSockets.http.on("listening", info => {
       console.log(`[NODE]: listening for HTTP requests on port ${info.port}.`);
@@ -553,5 +554,15 @@ function checkInternet(cb) {
     } else {
       cb(true);
     }
+  });
+}
+
+function listenForWarnings() {
+  // once will register for first one
+  node.master.once("warning", info => {
+    win.webContents.send("alertWarning", info.message);
+    ipcMain.once("dismissWarning", () => {
+      listenForWarnings();
+    });
   });
 }
