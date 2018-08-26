@@ -172,6 +172,20 @@ function createTray(): void {
   });
 }
 
+const shouldQuit = app.makeSingleInstance(() => {
+  if (win) {
+    if (win.isMinimized()){
+      win.restore();
+    }
+    win.focus();
+  }
+});
+
+if (shouldQuit) {
+  app.quit();
+  process.exit(0);
+}
+
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
