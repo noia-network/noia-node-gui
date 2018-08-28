@@ -2,6 +2,8 @@ import { Component, OnInit, NgZone } from "@angular/core";
 import { NodeService } from "../../providers/node.service";
 import { ToastrService } from "ngx-toastr";
 import { UtilsService } from "../../providers/utils.service";
+// TODO: Temporary solution.
+import * as publicIp from 'public-ip';
 
 @Component({
   selector: "app-home",
@@ -85,7 +87,15 @@ export class SettingsComponent implements OnInit {
     this.units = transformedBytes.units;
   }
 
-  onPortCheck() {
-    window.require("electron").shell.openExternal(`https://www.yougetsignal.com/tools/open-ports`);
+  onUdpPortCheck() {
+    publicIp.v4().then(ip => {
+      window.require("electron").shell.openExternal(`https://check-host.net/check-udp?host=${ip}:` + (this.settings.dataPort ? this.settings.dataPort : '8058'));
+    });
+  }
+
+  onTcpPortCheck() {
+    publicIp.v4().then(ip => {
+      window.require("electron").shell.openExternal(`https://check-host.net/check-tcp?host=${ip}:` + (this.settings.controlPort ? this.settings.controlPort : '8048'));
+    });
   }
 }
