@@ -13,6 +13,8 @@ let win: BrowserWindow | undefined, serve;
 let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
 let guiSettings: SettingsGuiDto;
+const windowWidth = 732;
+const windowHeight = 456;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
 
@@ -32,8 +34,8 @@ function createWindow() {
     resizable: false,
     x: 0,
     y: 0,
-    width: 726 + 8 - 2,
-    height: 427 + 51 - 20 - 2,
+    width: windowWidth,
+    height: windowHeight,
     icon: path.join(__dirname, "src/assets/noia-icon.png")
   });
 
@@ -99,6 +101,10 @@ function createWindow() {
       await node.stop();
       process.exit(0);
     }
+  });
+
+  win.on("resize", event => {
+    win.setSize(windowWidth, windowHeight);
   });
 
   win.webContents.on("new-window", function (e, url) {
