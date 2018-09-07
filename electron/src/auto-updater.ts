@@ -25,12 +25,12 @@ export class AutoUpdater {
 
   public start(): void {
     this.checkForUpdates();
-    this.updateCheckInterval = setInterval(this.checkForUpdates, this.checkIntervalTime);
+    this.updateCheckInterval = global.setInterval(this.checkForUpdates, this.checkIntervalTime);
   }
 
   public stop(): void {
     if (this.updateCheckInterval != null) {
-      clearInterval(this.updateCheckInterval);
+      global.clearInterval(this.updateCheckInterval);
     }
   }
 

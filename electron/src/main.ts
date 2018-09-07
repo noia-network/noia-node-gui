@@ -13,6 +13,8 @@ let win: BrowserWindow | undefined, serve;
 let autoUpdater: AutoUpdater | undefined;
 let tray: Tray | undefined;
 let guiSettings: SettingsGuiDto;
+const windowWidth = 732;
+const windowHeight = 456;
 const args = process.argv.slice(1);
 serve = args.some(val => val === "--serve");
 
@@ -32,8 +34,8 @@ function createWindow() {
     resizable: false,
     x: 0,
     y: 0,
-    width: 726 + 8 - 2,
-    height: 427 + 51 - 20 - 2,
+    width: windowWidth,
+    height: windowHeight,
     icon: path.join(__dirname, "src/assets/noia-icon.png")
   });
 
@@ -99,6 +101,10 @@ function createWindow() {
       await node.stop();
       process.exit(0);
     }
+  });
+
+  win.on("resize", event => {
+    win.setSize(windowWidth, windowHeight);
   });
 
   win.webContents.on("new-window", function (e, url) {
@@ -170,6 +176,20 @@ function createTray(): void {
       win.show();
     }
   });
+}
+
+const shouldQuit = app.makeSingleInstance(() => {
+  if (win) {
+    if (win.isMinimized()){
+      win.restore();
+    }
+    win.focus();
+  }
+});
+
+if (shouldQuit) {
+  app.quit();
+  process.exit(0);
 }
 
 try {
@@ -327,6 +347,7 @@ ipcMain.on("nodeInit", () => {
   node.master.on("seed", info => {
     console.log("[NODE][IN]: seed request.");
   });
+  listenForWarnings();
   if (node.clientSockets.http) {
     node.clientSockets.http.on("listening", info => {
       console.log(`[NODE]: listening for HTTP requests on port ${info.port}.`);
@@ -553,5 +574,15 @@ function checkInternet(cb) {
     } else {
       cb(true);
     }
+  });
+}
+
+function listenForWarnings() {
+  // once will register for first one
+  node.master.once("warning", info => {
+    win.webContents.send("alertWarning", info.message);
+    ipcMain.once("dismissWarning", () => {
+      listenForWarnings();
+    });
   });
 }
