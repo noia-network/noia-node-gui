@@ -1,0 +1,39 @@
+@import "../../../../../styles/_config";
+
+.storage-view {
+    display: flex;
+    flex-flow: column;
+    padding: 0 1.875rem;
+    color: $blue-light-2;
+    height: 13.25rem;
+    justify-content: center;
+    align-items: center;
+
+    > .wrapper {
+        width: 100%;
+
+        > *:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            color: $white;
+            font-size: 0.75rem;
+        }
+
+        .storage-size {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 0.75rem;
+
+            .value {
+                color: $white;
+                padding-right: 0.25rem;
+            }
+
+            .separator {
+                padding: 0 0.25rem;
+            }
+        }
+    }
+}

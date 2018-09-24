@@ -1,0 +1,36 @@
+@import "../../../../../styles/_config";
+
+.data-view {
+    padding: 0 1.875rem;
+    color: $blue-light-2;
+    height: 13.25rem;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+
+    > .wrapper {
+        width: 100%;
+        > .title {
+            padding-bottom: 0.25rem;
+
+            .value {
+                font-family: $font-family-1;
+                font-size: 1.75rem;
+                font-weight: 100;
+                color: $white;
+                padding-right: 0.25rem;
+            }
+
+            .unit {
+                font-family: $font-family-2;
+                font-size: 0.75rem;
+            }
+        }
+
+        > .description {
+            font-family: $font-family-2;
+            font-size: 0.75rem;
+        }
+    }
+}

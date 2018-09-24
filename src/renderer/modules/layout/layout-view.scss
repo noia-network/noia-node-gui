@@ -1,0 +1,66 @@
+@import "../../styles/_config";
+
+.layout-view {
+    display: flex;
+    flex-flow: row;
+    height: 100%;
+    width: 100%;
+
+    > aside {
+        max-width: 7.625rem;
+        width: 100%;
+        height: 100%;
+        background-color: $blue-light;
+        display: flex;
+        flex-flow: column;
+
+        > .wrapper {
+            flex: 1 0;
+            display: flex;
+            justify-content: space-between;
+            flex-flow: column;
+            padding: 1.875rem 1.875rem 0.8575rem 1.875rem;
+
+            .navigation {
+                display: flex;
+                flex-flow: column;
+
+                > li {
+                    padding-bottom: 1.5rem;
+
+                    .navigation-item {
+                        font-size: 1rem;
+                        text-decoration: none;
+                        color: $blue-light-2;
+
+                        &.active {
+                            color: $white;
+                        }
+                    }
+                }
+            }
+
+            .bottom {
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+
+                .logo {
+                    padding-bottom: 0.5rem;
+                }
+
+                .version {
+                    font-family: $font-family-2;
+                    color: $white;
+                    font-size: 0.5rem;
+                }
+            }
+        }
+    }
+
+    > main {
+        flex: 1 0;
+        height: inherit;
+        overflow: auto;
+    }
+}

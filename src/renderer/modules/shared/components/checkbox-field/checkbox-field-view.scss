@@ -1,0 +1,57 @@
+@import "../../../../styles/_helpers";
+@import "../../../../styles/_config";
+
+@mixin checkbox($size: 1rem, $border-color: $grey) {
+    display: flex;
+    align-items: center;
+
+    $border-width: $size * 0.14;
+    $tick-width-pct: 0.35;
+    $tick-height-pct: 0.65;
+
+    > input {
+        @include hide-content;
+
+        &:checked + .check {
+            background-color: $blue-light;
+            border-color: $blue-light;
+
+            &::after {
+                content: " ";
+                position: absolute;
+                width: $size * $tick-width-pct;
+                height: $size * $tick-height-pct;
+                background: none;
+                margin-left: $size * 0.25;
+                border: solid $white;
+                border-width: 0 $border-width $border-width 0;
+                transform: rotate(45deg);
+            }
+        }
+
+        &:disabled + .check {
+            cursor: not-allowed;
+        }
+    }
+
+    .check {
+        width: $size;
+        height: $size;
+        border: 2px solid $border-color;
+        position: relative;
+        transition: background-color 0.1s ease-in;
+        transition: border-color 0.1s ease-in;
+
+        &:hover {
+            background-color: $grey;
+        }
+    }
+}
+
+.checkbox-field-view {
+    @include checkbox();
+
+    &.small {
+        @include checkbox(0.75rem, $blue-light);
+    }
+}

@@ -1,0 +1,47 @@
+@import "../../../styles/_config";
+
+.node-route-view {
+    display: flex;
+    flex-flow: row;
+    height: 100%;
+    max-height: 100vh;
+
+    > aside {
+        display: flex;
+        flex-flow: column;
+        width: 100%;
+        max-width: 13.25rem;
+        background-color: $blue-dark-2;
+
+        > * {
+            border-bottom: 1px solid $blue-dark;
+        }
+    }
+
+    > main {
+        display: flex;
+          flex-flow: column;
+        width: 100%;
+
+        > .row {
+            display: flex;
+            justify-content: center;
+
+            &.gauges {
+                flex: 1 0;
+            }
+
+            > * {
+                flex: 1 0;
+
+                &:not(:last-child) {
+                    border-right: 1px solid $grey;
+                }
+            }
+        }
+
+        > * {
+            border-bottom: 1px solid $grey;
+        }
+    }
+}
