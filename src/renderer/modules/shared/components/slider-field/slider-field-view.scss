@@ -1,0 +1,29 @@
+@import "../../../../styles/_config";
+
+.slider-field-view {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    &.disabled {
+        cursor: not-allowed;
+
+        .lenght-label {
+            color: $grey;
+        }
+    }
+
+    .lenght-label {
+        color: $blue-light;
+        font-size: 0.875rem;
+
+        .length {
+            padding-right: 0.25rem;
+        }
+    }
+
+    > input {
+        width: 100%;
+        margin: 0 0.5rem;
+    }
+}

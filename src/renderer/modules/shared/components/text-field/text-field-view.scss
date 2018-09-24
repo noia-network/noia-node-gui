@@ -1,0 +1,21 @@
+@import "../../../../styles/_config";
+
+.text-field-view {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+
+    &.icon {
+        > input {
+            padding-right: 1.25rem;
+        }
+    }
+
+    > .icon {
+        position: absolute;
+        right: 0;
+        max-width: 1rem;
+        max-height: 1rem;
+    }
+}

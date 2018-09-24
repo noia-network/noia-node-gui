@@ -1,0 +1,59 @@
+@import "../../../../../styles/_config";
+
+.controls-view {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: $blue-light-2;
+
+    > .button {
+        margin-bottom: 0.25rem;
+
+        &.connect {
+            background-color: $blue-light-2;
+            font-weight: bold;
+            height: 3rem;
+            width: 20.5rem;
+            padding: 0 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            > span {
+                flex: 1 0;
+            }
+
+            &:hover {
+                background-color: darken($blue-light-2, 10);
+            }
+
+            &:active {
+                background-color: darken($blue-light-2, 15);
+            }
+
+            &.green {
+                background-color: $green;
+
+                &:hover {
+                    background-color: darken($green, 10);
+                }
+
+                &:active {
+                    background-color: darken($green, 15);
+                }
+            }
+        }
+    }
+
+    > .reconnect {
+        display: flex;
+        flex-flow: row;
+        justify-content: flex-end;
+        align-items: center;
+
+        max-width: 20.625rem;
+        width: 100%;
+    }
+}

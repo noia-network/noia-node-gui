@@ -1,22 +1,22 @@
 {
-  "productName": "NOIA",
-  "directories": {
-    "output": "app-builds"
-  },
-  "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
-  "win": {
-    "icon": "dist",
-    "target": ["nsis"],
-    "publish": ["github"]
-  },
-  "mac": {
-    "icon": "dist",
-    "target": ["dmg", "zip"],
-    "publish": ["github"]
-  },
-  "linux": {
-    "icon": "dist",
-    "target": ["AppImage"],
-    "publish": ["github"]
-  }
+    "productName": "NOIA",
+    "directories": {
+        "output": "app-builds"
+    },
+    "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
+    "win": {
+        "icon": "assets",
+        "target": "nsis",
+        "publish": ["github"]
+    },
+    "mac": {
+        "icon": "assets",
+        "target": ["dmg", "zip"],
+        "publish": ["github"]
+    },
+    "linux": {
+        "icon": "assets",
+        "target": ["AppImage"],
+        "publish": ["github"]
+    }
 }

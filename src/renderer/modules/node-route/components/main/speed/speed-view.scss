@@ -1,0 +1,27 @@
+@import "../../../../../styles/_config";
+
+.speed-view {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+
+    .title {
+        font-family: $font-family-1;
+        font-size: 1.625rem;
+        font-weight: 100;
+        color: $blue-dark-2;
+        padding-bottom: 0.25rem;
+
+        > .unit {
+            color: $blue-light-2;
+            font-size: 0.875rem;
+        }
+    }
+
+    .description {
+        font-family: $font-family-2;
+        font-size: 0.75rem;
+        color: $blue-light-2;
+    }
+}

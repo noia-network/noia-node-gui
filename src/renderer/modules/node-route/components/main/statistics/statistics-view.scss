@@ -1,0 +1,25 @@
+@import "../../../../../styles/_config";
+
+.statistics-view {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 6.625rem;
+    max-width: 12.5rem;
+    overflow: hidden;
+
+    .value {
+        padding-bottom: 0.5rem;
+        font-family: $font-family-1;
+        font-size: 1.625rem;
+        font-weight: 100;
+        color: $blue-dark-2;
+    }
+
+    .description {
+        font-family: $font-family-2;
+        font-size: 0.75rem;
+        color: $blue-light-2;
+    }
+}

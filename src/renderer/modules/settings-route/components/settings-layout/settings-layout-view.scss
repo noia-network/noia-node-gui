@@ -1,0 +1,52 @@
+@import "../../../../styles/_config";
+
+$tab-background-color: lighten(#3940bb, 50);
+
+.settings-layout-view {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+
+    .fields {
+        flex: 1 0;
+        overflow: auto;
+        .row {
+            display: flex;
+            min-height: 3rem;
+            padding: 0.5rem 2rem;
+            align-items: center;
+            border-bottom: 1px solid $grey;
+
+            &.disabled {
+                color: $grey;
+            }
+
+            // TODO: Fix styling issue.
+            // &:not(:last-child) {
+            //     border-bottom: 1px solid $grey;
+            // }
+
+            > label {
+                min-width: 14rem;
+            }
+
+            > .field {
+                flex: 1 0;
+                display: flex;
+                flex-flow: column;
+
+                &.multiple > *:not(:first-child) {
+                    margin-top: 0.5rem;
+                }
+            }
+        }
+    }
+
+    .control {
+        display: flex;
+        align-items: center;
+        height: 3rem;
+        padding: 0 1rem;
+        border-top: 1px solid $grey;
+    }
+}

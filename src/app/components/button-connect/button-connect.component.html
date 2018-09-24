@@ -1,4 +1,0 @@
-<button class="node-button" [ngClass]="{'active' : status === statuses.running}" [disabled]="status === statuses.starting">
-  <img src="assets/icon-power.svg" style="float: left;">
-  {{ status }} {{ status === statuses.reconnecting ? "("+autoReconnectSeconds+")" : "" }}
-</button>

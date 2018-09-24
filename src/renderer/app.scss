@@ -1,0 +1,118 @@
+@import "./styles/_reset";
+@import "./styles/_config";
+
+@include reset-css();
+
+html,
+body,
+#root {
+    font-family: $font-family-1;
+    font-weight: 400;
+    min-width: 20rem;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.button {
+    background-color: $blue-light;
+    color: $white;
+    font-size: 1rem;
+    height: 2.25rem;
+    min-width: 5rem;
+    padding: 0 0.5rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    box-shadow: 0.625rem 0.625rem 5rem -0.75rem rgba(0, 0, 0, 0.6);
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &:hover {
+        background-color: darken($blue-light, 10);
+    }
+
+    &:active {
+        background-color: darken($blue-light, 15);
+    }
+
+    &.small {
+        height: auto;
+        width: auto;
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    &.green {
+        background-color: $green;
+
+        &:hover {
+            background-color: darken($green, 10);
+        }
+
+        &:active {
+            background-color: darken($green, 15);
+        }
+    }
+}
+
+//#region Scrollbar
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: $blue-light-2;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+//#endregion
+
+input[type="text"] {
+    border: 0;
+    color: $blue-light;
+    border-bottom: 2px solid $grey;
+    transition: border 0.1s linear;
+    font-size: 0.875rem;
+
+    &:focus {
+        outline: 0;
+        border-bottom: 2px solid $blue-light;
+    }
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    height: 2px;
+    background: $grey;
+    outline: none;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: $blue-light;
+        cursor: pointer;
+    }
+
+    &:disabled::-webkit-slider-thumb {
+        background: $grey;
+        cursor: not-allowed;
+    }
+}
