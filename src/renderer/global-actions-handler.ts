@@ -66,6 +66,7 @@ RendererDispatcher.addListener<UpdateAvailableAction>("UPDATE_AVAILABLE", action
 RendererDispatcher.addListener<UpdateDownloadFailedAction>("UPDATE_DOWNLOAD_FAILED", action => {
     NotificationsActionsCreators.addNotification({
         level: "error",
+        uid: "electron-updater-download-failed",
         message: `Failed to download.`,
         autoDismiss: 0,
         action: {
@@ -80,6 +81,7 @@ RendererDispatcher.addListener<UpdateDownloadFailedAction>("UPDATE_DOWNLOAD_FAIL
 RendererDispatcher.addListener<UpdateInstallFailedAction>("UPDATE_INSTALL_FAILED", () => {
     NotificationsActionsCreators.addNotification({
         level: "error",
+        uid: "electron-updater-install-failed",
         message: `Failed to install.`,
         autoDismiss: 0,
         action: {

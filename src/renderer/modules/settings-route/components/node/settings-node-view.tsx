@@ -147,11 +147,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
                             onChange={this.onPortChange(NodeSettingsKeys.WrtcDataPort)}
                         />
                         <div>
-                            <button
-                                type="button"
-                                className="button small"
-                                onClick={this.onCheckPort(NodeSettingsKeys.WrtcControlPort, "udp")}
-                            >
+                            <button type="button" className="button small" onClick={this.onCheckPort(NodeSettingsKeys.WrtcDataPort, "udp")}>
                                 Check port
                             </button>
                         </div>
