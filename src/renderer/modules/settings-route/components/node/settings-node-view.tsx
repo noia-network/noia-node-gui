@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as publicIp from "public-ip";
+import { remote } from "electron";
 
 import { NodeSettingsKeys } from "@global/contracts/node-settings";
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
@@ -38,6 +40,28 @@ export class SettingsNodeView extends React.Component<Props, State> {
                 [NodeSettingsKeys.NatPmp]: false,
                 ...props.settings
             }
+        };
+    }
+
+    private onCheckPort(fieldName: keyof FormFieldsDto, protocol: "udp" | "tcp"): () => void {
+        return async () => {
+            let resolvedIp: string | undefined;
+            const port = this.state.fields[fieldName];
+
+            try {
+                resolvedIp = await publicIp.v4();
+            } catch (error) {
+                NotificationsActionsCreators.addNotification({
+                    level: "error",
+                    message: "Failed to resolve public ip address."
+                });
+            }
+
+            if (resolvedIp == null) {
+                return;
+            }
+
+            remote.shell.openExternal(`https://check-host.net/check-${protocol}?host=${resolvedIp}:${port}`);
         };
     }
 
@@ -97,19 +121,41 @@ export class SettingsNodeView extends React.Component<Props, State> {
             <SettingsLayoutView onSubmit={this.onSubmit}>
                 <div className="row">
                     <label>WebRTC control port</label>
-                    <PortFieldView
-                        name="webrtcControlPort"
-                        value={this.state.fields[NodeSettingsKeys.WrtcControlPort]}
-                        onChange={this.onPortChange(NodeSettingsKeys.WrtcControlPort)}
-                    />
+                    <div className="field multiple">
+                        <PortFieldView
+                            name="webrtcControlPort"
+                            value={this.state.fields[NodeSettingsKeys.WrtcControlPort]}
+                            onChange={this.onPortChange(NodeSettingsKeys.WrtcControlPort)}
+                        />
+                        <div>
+                            <button
+                                type="button"
+                                className="button small"
+                                onClick={this.onCheckPort(NodeSettingsKeys.WrtcControlPort, "tcp")}
+                            >
+                                Check port
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div className="row">
                     <label>WebRTC data port</label>
-                    <PortFieldView
-                        name="webrtcDataPort"
-                        value={this.state.fields[NodeSettingsKeys.WrtcDataPort]}
-                        onChange={this.onPortChange(NodeSettingsKeys.WrtcDataPort)}
-                    />
+                    <div className="field multiple">
+                        <PortFieldView
+                            name="webrtcDataPort"
+                            value={this.state.fields[NodeSettingsKeys.WrtcDataPort]}
+                            onChange={this.onPortChange(NodeSettingsKeys.WrtcDataPort)}
+                        />
+                        <div>
+                            <button
+                                type="button"
+                                className="button small"
+                                onClick={this.onCheckPort(NodeSettingsKeys.WrtcControlPort, "udp")}
+                            >
+                                Check port
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div className="row">
                     <label>Storage directory</label>

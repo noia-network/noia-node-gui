@@ -8,6 +8,8 @@ import { SettingsLayoutView } from "@renderer/modules/settings-route/settings-ro
 import { TextFieldView } from "@renderer/modules/shared/shared-module";
 import { NotificationsActionsCreators } from "@renderer/modules/notifications/notifications-module";
 
+import "./wallet-route-view.scss";
+
 interface FormFieldsDto {
     [NodeSettingsKeys.WalletAddress]: string;
 }
@@ -71,12 +73,13 @@ export class WalletRouteView extends React.Component<Props, State> {
 
     public render(): JSX.Element {
         return (
-            <SettingsLayoutView onSubmit={this.onSubmit}>
+            <SettingsLayoutView onSubmit={this.onSubmit} className="wallet-route-view">
                 <div className="row">
                     <label>Wallet</label>
                     <div className="field multiple">
                         <TextFieldView
                             name="wallet"
+                            className="wallet-field"
                             value={this.state.fields[NodeSettingsKeys.WalletAddress]}
                             onChange={this.onTextChange}
                             placeholder="Paste your ethereum wallet address here"
