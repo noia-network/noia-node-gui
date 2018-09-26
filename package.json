@@ -1,6 +1,6 @@
 {
     "name": "noia-node-gui",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "private": true,
     "main": "main.js",
     "scripts": {
@@ -36,7 +36,7 @@
         "webpack-dev-server": "^3.1.6"
     },
     "dependencies": {
-        "@noia-network/node": "0.5.3",
+        "@noia-network/node": "0.5.4",
         "@types/bytes": "^3.0.0",
         "@types/classnames": "^2.2.6",
         "@types/dotenv": "^4.0.3",
@@ -44,6 +44,7 @@
         "@types/flux": "^3.1.8",
         "@types/fs-extra": "^5.0.4",
         "@types/lodash.debounce": "^4.0.4",
+        "@types/public-ip": "^2.3.0",
         "@types/react": "^16.4.13",
         "@types/react-dom": "^16.0.7",
         "@types/react-router-dom": "^4.3.0",
@@ -59,6 +60,7 @@
         "fs-extra": "^7.0.0",
         "immutable": "^3.8.2",
         "lodash.debounce": "^4.0.8",
+        "public-ip": "^2.4.0",
         "react": "^16.4.2",
         "react-dom": "^16.4.2",
         "react-notification-system": "^0.2.17",

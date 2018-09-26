@@ -38,6 +38,7 @@
         width: $size;
         height: $size;
         border: 2px solid $border-color;
+        border-radius: 0.25rem;
         position: relative;
         transition: background-color 0.1s ease-in;
         transition: border-color 0.1s ease-in;
