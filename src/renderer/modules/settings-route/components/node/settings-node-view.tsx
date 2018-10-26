@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as publicIp from "public-ip";
 import { remote } from "electron";
+//tslint:disable-next-line:no-require-imports
+import isUrl = require("is-url");
 import { NodeSettingsDto } from "@noia-network/node-settings";
 
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
@@ -12,6 +14,7 @@ import { PortFieldView, PortFieldViewChangeHandler } from "./fields/port-field-v
 import { NotificationsActionsCreators } from "@renderer/modules/notifications/notifications-module";
 
 interface FormFieldsDto {
+    masterAddress: string;
     wrtcControlPort: number;
     wrtcDataPort: number;
     storageDir: string;
@@ -33,6 +36,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
 
         this.state = {
             fields: {
+                masterAddress: props.settings.masterAddress || "",
                 wrtcControlPort: props.settings.sockets.wrtc.controlPort,
                 wrtcDataPort: props.settings.sockets.wrtc.dataPort,
                 storageDir: props.settings.storage.dir,
@@ -82,6 +86,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
 
         NodeSettingsActionsCreators.updateSettings({
             settings: {
+                masterAddress: this.state.fields.masterAddress,
                 sockets: {
                     wrtc: {
                         controlPort: controlPort,
@@ -96,6 +101,25 @@ export class SettingsNodeView extends React.Component<Props, State> {
             },
             notify: true,
             restartNode: true
+        });
+    };
+
+    private onMasterAddressChange: React.ChangeEventHandler<HTMLInputElement> = event => {
+        const value = event.currentTarget.value;
+
+        this.setState(state => {
+            state.fields.masterAddress = value;
+            return state;
+        });
+    };
+
+    private onMasterAddressBlur = () => {
+        this.setState((state, props) => {
+            if (!isUrl(state.fields.masterAddress)) {
+                state.fields.masterAddress = props.settings.masterAddress || "";
+            }
+
+            return state;
         });
     };
 
@@ -134,6 +158,19 @@ export class SettingsNodeView extends React.Component<Props, State> {
     public render(): JSX.Element {
         return (
             <SettingsLayoutView onSubmit={this.onSubmit}>
+                <div className="row">
+                    <label>Master address</label>
+                    <div className="field multiple">
+                        <input
+                            type="text"
+                            name="masterAddress"
+                            value={this.state.fields.masterAddress}
+                            onChange={this.onMasterAddressChange}
+                            onBlur={this.onMasterAddressBlur}
+                            placeholder="ws://address:port"
+                        />
+                    </div>
+                </div>
                 <div className="row">
                     <label>WebRTC control port</label>
                     <div className="field multiple">
