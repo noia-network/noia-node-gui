@@ -1,14 +1,15 @@
 import * as React from "react";
 import { Container } from "flux/utils";
 
-import { NodeConnection, SpeedStats, StorageStats, SeedStats } from "@global/contracts/node-actions";
+import { MasterConnectionState } from "@global/contracts/node";
+import { SpeedStats, StorageStats, SeedStats } from "@global/contracts/node-actions";
 import { LoaderView } from "@renderer/modules/shared/shared-module";
 
 import { NodeStore } from "../stores/node-store";
 import { NodeRouteView } from "./node-route-view";
 
 interface State {
-    connection: NodeConnection;
+    connection: MasterConnectionState | undefined;
     connectionsCount: number;
     speed: SpeedStats;
     storageStats: StorageStats;
@@ -33,7 +34,7 @@ class NodeRouteContainerClass extends React.Component<{}, State> {
     }
 
     public render(): JSX.Element {
-        if (this.state.connection === NodeConnection.Init) {
+        if (this.state.connection == null) {
             return <LoaderView color="blue" containerFull={true} />;
         }
 

@@ -1,21 +1,23 @@
 import * as React from "react";
 import { Container } from "flux/utils";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
-import { NodeSettingsStore } from "../stores/node-settings-store";
 import { LoaderView } from "@renderer/modules/shared/shared-module";
 
+import { NodeSettingsStore } from "../stores/node-settings-store";
+
 interface Props {
-    children: (settings: { [key: string]: unknown }) => React.ReactNode;
+    children: (settings: NodeSettingsDto) => React.ReactNode;
 }
 
 interface State {
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto | undefined;
     loaded: boolean;
 }
 
 class SettingsContainerClass extends React.Component<Props, State> {
     public state: State = {
-        settings: {},
+        settings: undefined,
         loaded: false
     };
 
@@ -32,7 +34,7 @@ class SettingsContainerClass extends React.Component<Props, State> {
     }
 
     public render(): React.ReactNode {
-        if (!this.state.loaded) {
+        if (!this.state.loaded || this.state.settings == null) {
             return <LoaderView color="blue" containerFull={true} />;
         }
 

@@ -1,4 +1,4 @@
-import { GuiSettingsKeys } from "@global/contracts/node-settings";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
 import { Store, StoreActionHandler } from "../abstractions/store";
 import { MainDispatcher } from "./main-dispatcher";
@@ -8,7 +8,7 @@ import { NodeExitedAction } from "../contracts/main-actions";
 import { NodeActionsCreators } from "./node-actions-creators";
 
 interface State {
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto | undefined;
 }
 
 class NodeSettingsStoreClass extends Store<State> {
@@ -27,14 +27,15 @@ class NodeSettingsStoreClass extends Store<State> {
 
     public getInitialState(): State {
         return {
-            settings: {}
+            settings: undefined
         };
     }
 
     public get minimizeToTray(): boolean {
-        const minimizeToTray = this.getState().settings[GuiSettingsKeys.MinimizeToTray];
-        if (minimizeToTray != null && typeof minimizeToTray === "boolean") {
-            return minimizeToTray;
+        const { settings } = this.getState();
+
+        if (settings != null) {
+            return settings.gui.minimizeToTray;
         }
 
         return false;

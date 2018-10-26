@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as publicIp from "public-ip";
 import { remote } from "electron";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
-import { NodeSettingsKeys } from "@global/contracts/node-settings";
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
 import { DirectoryFieldView, DirectoryFieldViewChange, CheckboxFieldView } from "@renderer/modules/shared/shared-module";
 
@@ -12,15 +12,15 @@ import { PortFieldView, PortFieldViewChangeHandler } from "./fields/port-field-v
 import { NotificationsActionsCreators } from "@renderer/modules/notifications/notifications-module";
 
 interface FormFieldsDto {
-    [NodeSettingsKeys.WrtcControlPort]: number;
-    [NodeSettingsKeys.WrtcDataPort]: number;
-    [NodeSettingsKeys.StorageDir]: string;
-    [NodeSettingsKeys.StorageSize]: number;
-    [NodeSettingsKeys.NatPmp]: boolean;
+    wrtcControlPort: number;
+    wrtcDataPort: number;
+    storageDir: string;
+    storageSize: number;
+    natPmp: boolean;
 }
 
 interface Props {
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto;
 }
 
 interface State {
@@ -33,12 +33,11 @@ export class SettingsNodeView extends React.Component<Props, State> {
 
         this.state = {
             fields: {
-                [NodeSettingsKeys.WrtcControlPort]: 8048,
-                [NodeSettingsKeys.WrtcDataPort]: 8058,
-                [NodeSettingsKeys.StorageDir]: "",
-                [NodeSettingsKeys.StorageSize]: 1024 ** 3,
-                [NodeSettingsKeys.NatPmp]: false,
-                ...props.settings
+                wrtcControlPort: props.settings.sockets.wrtc.controlPort,
+                wrtcDataPort: props.settings.sockets.wrtc.dataPort,
+                storageDir: props.settings.storage.dir,
+                storageSize: props.settings.storage.size,
+                natPmp: props.settings.natPmp
             }
         };
     }
@@ -69,8 +68,8 @@ export class SettingsNodeView extends React.Component<Props, State> {
         event.preventDefault();
         event.stopPropagation();
 
-        const controlPort = this.state.fields[NodeSettingsKeys.WrtcControlPort];
-        const dataPort = this.state.fields[NodeSettingsKeys.WrtcDataPort];
+        const controlPort = this.state.fields.wrtcControlPort;
+        const dataPort = this.state.fields.wrtcDataPort;
 
         if (controlPort === dataPort) {
             NotificationsActionsCreators.addNotification({
@@ -81,10 +80,26 @@ export class SettingsNodeView extends React.Component<Props, State> {
             return;
         }
 
-        NodeSettingsActionsCreators.updateSettings(this.state.fields, true);
+        NodeSettingsActionsCreators.updateSettings({
+            settings: {
+                sockets: {
+                    wrtc: {
+                        controlPort: controlPort,
+                        dataPort: dataPort
+                    }
+                },
+                storage: {
+                    dir: this.state.fields.storageDir,
+                    size: this.state.fields.storageSize
+                },
+                natPmp: this.state.fields.natPmp
+            },
+            notify: true,
+            restartNode: true
+        });
     };
 
-    private onPortChange(fieldName: NodeSettingsKeys.WrtcDataPort | NodeSettingsKeys.WrtcControlPort): PortFieldViewChangeHandler {
+    private onPortChange(fieldName: keyof FormFieldsDto): PortFieldViewChangeHandler {
         return value => {
             this.setState(state => {
                 state.fields[fieldName] = value;
@@ -95,14 +110,14 @@ export class SettingsNodeView extends React.Component<Props, State> {
 
     private onStorageLocationChange: DirectoryFieldViewChange = location => {
         this.setState(state => {
-            state.fields[NodeSettingsKeys.StorageDir] = location;
+            state.fields.storageDir = location;
             return state;
         });
     };
 
     private onStorageSizeChange: StorageFieldViewChangeHandler = bytes => {
         this.setState(state => {
-            state.fields[NodeSettingsKeys.StorageSize] = bytes;
+            state.fields.storageSize = bytes;
             return state;
         });
     };
@@ -111,7 +126,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
         const value = event.target.checked;
 
         this.setState(state => {
-            state.fields[NodeSettingsKeys.NatPmp] = value;
+            state.fields.natPmp = value;
             return state;
         });
     };
@@ -124,15 +139,11 @@ export class SettingsNodeView extends React.Component<Props, State> {
                     <div className="field multiple">
                         <PortFieldView
                             name="webrtcControlPort"
-                            value={this.state.fields[NodeSettingsKeys.WrtcControlPort]}
-                            onChange={this.onPortChange(NodeSettingsKeys.WrtcControlPort)}
+                            value={this.state.fields.wrtcControlPort}
+                            onChange={this.onPortChange("wrtcControlPort")}
                         />
                         <div>
-                            <button
-                                type="button"
-                                className="button small"
-                                onClick={this.onCheckPort(NodeSettingsKeys.WrtcControlPort, "tcp")}
-                            >
+                            <button type="button" className="button small" onClick={this.onCheckPort("wrtcControlPort", "tcp")}>
                                 Check port
                             </button>
                         </div>
@@ -143,11 +154,11 @@ export class SettingsNodeView extends React.Component<Props, State> {
                     <div className="field multiple">
                         <PortFieldView
                             name="webrtcDataPort"
-                            value={this.state.fields[NodeSettingsKeys.WrtcDataPort]}
-                            onChange={this.onPortChange(NodeSettingsKeys.WrtcDataPort)}
+                            value={this.state.fields.wrtcDataPort}
+                            onChange={this.onPortChange("wrtcDataPort")}
                         />
                         <div>
-                            <button type="button" className="button small" onClick={this.onCheckPort(NodeSettingsKeys.WrtcDataPort, "udp")}>
+                            <button type="button" className="button small" onClick={this.onCheckPort("wrtcDataPort", "udp")}>
                                 Check port
                             </button>
                         </div>
@@ -157,7 +168,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
                     <label>Storage directory</label>
                     <DirectoryFieldView
                         name="storageDirectory"
-                        value={this.state.fields[NodeSettingsKeys.StorageDir]}
+                        value={this.state.fields.storageDir}
                         onChange={this.onStorageLocationChange}
                     />
                 </div>
@@ -166,8 +177,8 @@ export class SettingsNodeView extends React.Component<Props, State> {
                     <div className="field multiple">
                         <StorageFielView
                             name="storageSize"
-                            value={Number(this.state.fields[NodeSettingsKeys.StorageSize])}
-                            path={this.state.fields[NodeSettingsKeys.StorageDir]}
+                            value={this.state.fields.storageSize}
+                            path={this.state.fields.storageDir}
                             onChange={this.onStorageSizeChange}
                         />
                     </div>
@@ -175,11 +186,7 @@ export class SettingsNodeView extends React.Component<Props, State> {
                 <div className="row">
                     <label>Enable NAT-PMP</label>
                     <div className="field">
-                        <CheckboxFieldView
-                            name="natPmp"
-                            value={this.state.fields[NodeSettingsKeys.NatPmp]}
-                            onChange={this.onNatPmpChange}
-                        />
+                        <CheckboxFieldView name="natPmp" value={this.state.fields.natPmp} onChange={this.onNatPmpChange} />
                     </div>
                 </div>
             </SettingsLayoutView>

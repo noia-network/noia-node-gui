@@ -1,4 +1,5 @@
 import { ReduceStore, ActionHandler } from "simplr-flux";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
 import { NodeSettingsAction, NodeInitAction, NodeReadyAction } from "@global/contracts/node-actions";
 import { NodeDispatcher } from "@global/processes/node/node-dispatcher";
@@ -7,7 +8,7 @@ import { NodeExitedAction } from "@global/contracts/main-actions";
 import { NodeSettingsActionsCreators } from "../actions/node-settings-actions-creators";
 
 interface State {
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto | undefined;
     loaded: boolean;
 }
 
@@ -31,12 +32,8 @@ class NodeSettingsStoreClass extends ReduceStore<State> {
     public getInitialState(): State {
         return {
             loaded: false,
-            settings: {}
+            settings: undefined
         };
-    }
-
-    public get(key: string): unknown {
-        return this.getState().settings[key];
     }
 
     private onNodeRestart = (): State => this.getInitialState();

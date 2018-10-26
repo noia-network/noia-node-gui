@@ -1,7 +1,7 @@
 import { ReduceStore } from "simplr-flux";
+import { MasterConnectionState } from "@global/contracts/node";
 
 import {
-    NodeConnection,
     UpdateConnectionStatusAction,
     NodeStoreDataAction,
     SpeedStats,
@@ -19,7 +19,7 @@ import { NodeActionsCreators } from "../actions/node-actions-creators";
 import { NodeExitedAction } from "contracts/main-actions";
 
 interface State {
-    connection: NodeConnection;
+    connection: MasterConnectionState | undefined;
     connectionsCount: NodeConnectionsCount;
     speed: SpeedStats;
     storageStats: StorageStats;
@@ -50,7 +50,7 @@ class NodeStoreClass extends ReduceStore<State> {
 
     public getInitialState(): State {
         return {
-            connection: NodeConnection.Init,
+            connection: undefined,
             speed: {
                 download: 0,
                 upload: 0

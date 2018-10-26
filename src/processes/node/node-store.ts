@@ -1,8 +1,8 @@
+import { MasterConnectionState } from "../../contracts/node";
 import { Store, StoreActionHandler } from "../../abstractions/store";
 import { NodeDispatcher } from "./node-dispatcher";
 
 import {
-    NodeConnection,
     UpdateConnectionStatusAction,
     SpeedStats,
     UpdateSpeedAction,
@@ -18,7 +18,7 @@ import { RequestNodeDataAction } from "../../contracts/renderer-actions";
 import { NodeActionsCreators } from "./actions/node-actions-creators";
 
 export interface NodeStoreState {
-    connection: NodeConnection;
+    connection: MasterConnectionState | undefined;
     connectionsCount: NodeConnectionsCount;
     speed: SpeedStats;
     storageStats: StorageStats;
@@ -45,7 +45,7 @@ class NodeStoreClass extends Store<NodeStoreState> {
 
     public getInitialState(): NodeStoreState {
         return {
-            connection: NodeConnection.Init,
+            connection: undefined,
             speed: {
                 download: 0,
                 upload: 0
@@ -72,7 +72,7 @@ class NodeStoreClass extends Store<NodeStoreState> {
         return this.getState().speed;
     }
 
-    public getConnectionStatus(): NodeConnection {
+    public getConnectionStatus(): MasterConnectionState | undefined {
         return this.getState().connection;
     }
 

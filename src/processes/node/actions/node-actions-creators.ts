@@ -1,9 +1,9 @@
+import { MasterConnectionState } from "../../../contracts/node";
 import { NodeDispatcher } from "../node-dispatcher";
 import {
     NodeInitAction,
     UpdateSpeedAction,
     SpeedStats,
-    NodeConnection,
     UpdateConnectionStatusAction,
     NodeStoreDataAction,
     NodeConnectionsCount,
@@ -18,6 +18,7 @@ import {
 } from "../../../contracts/node-actions";
 import { NodeStoreState, NodeStore } from "../node-store";
 import { RequestNodeProcessRestartAction } from "contracts/shared-actions";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
 export namespace NodeActionsCreators {
     // TODO: Better name.
@@ -45,7 +46,7 @@ export namespace NodeActionsCreators {
         });
     }
 
-    export function updateConnectionStatus(status: NodeConnection): void {
+    export function updateConnectionStatus(status: MasterConnectionState): void {
         NodeDispatcher.dispatch<UpdateConnectionStatusAction>({
             type: "NODE_UPDATE_STATUS",
             status: status
@@ -106,7 +107,7 @@ export namespace NodeActionsCreators {
         });
     }
 
-    export function updateSettings(settings: { [key: string]: unknown }): void {
+    export function updateSettings(settings: NodeSettingsDto): void {
         NodeDispatcher.dispatch<NodeSettingsAction>({
             type: "NODE_SETTINGS_ACTION",
             settings: settings

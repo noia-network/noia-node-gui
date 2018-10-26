@@ -1,3 +1,6 @@
+import { NodeSettingsDto } from "@noia-network/node-settings";
+
+import { MasterConnectionState } from "./node";
 import { AppAction } from "./dispatcher";
 import { NodeStoreState } from "../processes/node/node-store";
 
@@ -19,16 +22,9 @@ export interface UpdateSpeedAction extends AppAction {
     stats: SpeedStats;
 }
 
-export enum NodeConnection {
-    Init = 0,
-    Connecting = 8,
-    Connected = 16,
-    Disonnected = 32
-}
-
 export interface UpdateConnectionStatusAction extends AppAction {
     type: "NODE_UPDATE_STATUS";
-    status: NodeConnection;
+    status: MasterConnectionState;
 }
 
 export interface NodeStoreDataAction {
@@ -75,7 +71,7 @@ export interface NodeSeedStatsAction {
 
 export interface NodeSettingsAction {
     type: "NODE_SETTINGS_ACTION";
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto;
 }
 
 export interface NodeCriticalErrorAction {
