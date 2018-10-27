@@ -18,6 +18,8 @@
         "skipLibCheck": true,
         "target": "es5",
         "strict": true,
+        "noEmitHelpers": true,
+        "importHelpers": true,
         "lib": ["es2017", "dom"],
         "plugins": [
             {

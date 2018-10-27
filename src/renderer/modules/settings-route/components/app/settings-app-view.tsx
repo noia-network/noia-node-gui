@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as classNames from "classnames";
+import { NodeSettingsDto } from "@noia-network/node-settings";
 
-import { GuiSettingsKeys } from "@global/contracts/node-settings";
 import { Helpers } from "@global/helpers";
 import { CheckboxFieldView } from "@renderer/modules/shared/shared-module";
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
@@ -9,11 +9,11 @@ import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/nod
 import { SettingsLayoutView } from "../settings-layout/settings-layout-view";
 
 interface FormFieldsDto {
-    [GuiSettingsKeys.MinimizeToTray]: boolean;
+    minimizeToTray: boolean;
 }
 
 interface Props {
-    settings: { [key: string]: unknown };
+    settings: NodeSettingsDto;
 }
 
 interface State {
@@ -26,22 +26,29 @@ export class SettingsAppView extends React.Component<Props, State> {
 
         this.state = {
             fields: {
-                [GuiSettingsKeys.MinimizeToTray]: false,
-                ...props.settings
+                minimizeToTray: props.settings.gui.minimizeToTray || false
             }
         };
     }
 
     private onSubmit: React.FormEventHandler<HTMLFormElement> = event => {
         event.preventDefault();
-        NodeSettingsActionsCreators.updateSettings(this.state.fields, true);
+        NodeSettingsActionsCreators.updateSettings({
+            settings: {
+                gui: {
+                    minimizeToTray: this.state.fields.minimizeToTray
+                }
+            },
+            notify: true,
+            restartNode: false
+        });
     };
 
     private onToTrayChange: React.ChangeEventHandler<HTMLInputElement> = event => {
         const value = event.target.checked;
 
         this.setState(state => {
-            state.fields[GuiSettingsKeys.MinimizeToTray] = value;
+            state.fields.minimizeToTray = value;
             return state;
         });
     };
@@ -53,7 +60,7 @@ export class SettingsAppView extends React.Component<Props, State> {
                     <label>Minimize to tray</label>
                     <CheckboxFieldView
                         name="toTray"
-                        value={this.state.fields[GuiSettingsKeys.MinimizeToTray]}
+                        value={this.state.fields.minimizeToTray}
                         onChange={this.onToTrayChange}
                         disabled={!Helpers.IS_WIN32}
                     />

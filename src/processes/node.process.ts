@@ -1,13 +1,10 @@
-// tslint:disable-next-line:no-require-imports
-import NoiaNode = require("@noia-network/node");
-import * as path from "path";
+import { Node as NoiaNode, MasterMetadata } from "@noia-network/node";
 
-import { NodeConnection, StorageStats } from "../contracts/node-actions";
+import { MasterConnectionState } from "../contracts/node";
 import { Helpers } from "../helpers";
 import { NodeActionsCreators } from "./node/actions/node-actions-creators";
 import { NodeStore } from "./node/node-store";
 import { NodeDispatcher } from "./node/node-dispatcher";
-import { GuiSettingsHandler, GuiSettings } from "./node/gui-settings";
 
 import { ConnectAction, DisconnectAction, RequestStorageStatsAction } from "../contracts/renderer-actions";
 import { NotificationActionsCreators } from "./node/actions/notifications-actions-creators";
@@ -24,81 +21,36 @@ process.on("unhandledRejection", error => {
     throw error;
 });
 
-const USER_DATA_PATH: string = process.env.USER_DATA_PATH!;
-
 const enum NotificationsId {
     FailedToConnect = "failed-to-connect",
     AutoReconnect = "auto-reconnect"
 }
 
-interface NodeOnConnectedDto {
-    params: {
-        externalIp: string;
-    };
-}
-
-interface NodeOnClosedDto {
-    code: number;
-    reason?: string;
-}
-
-function getSettings(node: NoiaNode, guiSettings: GuiSettingsHandler<GuiSettings>): { [key: string]: unknown } {
-    const nodeAllSettings = node.settings.settings;
-    const guiAllSettings = guiSettings.getAllSettings();
-
-    const prefixedGuiSettings: { [key: string]: unknown } = {};
-
-    for (const key of Object.keys(guiAllSettings)) {
-        prefixedGuiSettings[`gui.${key}`] = guiAllSettings[key];
-    }
-
-    return {
-        ...nodeAllSettings,
-        ...prefixedGuiSettings
-    };
-}
-
-/**
- * @returns Update required.
- */
-function updateSettings(node: NoiaNode, guiSettings: GuiSettingsHandler<GuiSettings>, settings: { [key: string]: unknown }): boolean {
-    const keys = Object.keys(settings);
-    const guiSettingsKeys = keys.filter(x => x.indexOf("gui.") === 0);
-    const nodeSettingsKeys = keys.filter(x => x.indexOf("gui.") === -1);
-    let restartRequired: boolean = false;
-
-    for (const key of guiSettingsKeys) {
-        const keyString = key.replace("gui.", "");
-        if (Helpers.isEqual(guiSettings.getAllSettings()[keyString], settings[key])) {
-            continue;
-        }
-
-        // tslint:disable-next-line:no-any
-        guiSettings.update(keyString as any, settings[key]);
-    }
-
-    for (const key of nodeSettingsKeys) {
-        if (Helpers.isEqual(node.settings.settings[key], settings[key])) {
-            continue;
-        }
-
-        restartRequired = true;
-        // tslint:disable-next-line:no-any
-        node.settings.update(key as any, settings[key]);
-    }
-
-    return restartRequired;
-}
-
 async function main(): Promise<void> {
-    NodeActionsCreators.init();
     console.info(`[NODE] Process has been started ${process.pid}.`);
-    const node = new NoiaNode({
-        userDataPath: USER_DATA_PATH
-    });
-    const guiSettings = await GuiSettingsHandler.init(path.resolve(USER_DATA_PATH, "settings-gui.json"));
+    // userDataPath: USER_DATA_PATH
+    const node = new NoiaNode();
+    await node.init();
+    NodeActionsCreators.init();
 
-    NodeActionsCreators.updateConnectionStatus(NodeConnection.Disonnected);
+    node.on("warning", message => {
+        NotificationActionsCreators.createNotification({
+            level: "warning",
+            message: message
+        });
+    });
+
+    node.on("error", (error: Error & { code?: string; port?: number }) => {
+        let errorMessage: string = error.message;
+        if (error.code === "EADDRINUSE") {
+            errorMessage = `Port ${error.port} is already in use. Please choose another port.`;
+        }
+
+        NotificationActionsCreators.createNotification({
+            level: "error",
+            message: errorMessage
+        });
+    });
 
     let timesReconnected: number = 0;
     let reconnectionTimeout: NodeJS.Timer | undefined;
@@ -106,72 +58,77 @@ async function main(): Promise<void> {
     let forceDisconnect: boolean = false;
 
     //#region Settings.
-    node.settings.update(node.settings.Options.wrtc, true);
+    node.getSettings()
+        .getScope("sockets")
+        .getScope("wrtc")
+        .update("isEnabled", true);
 
     // Update master address.
-    const currentMasterAddress = node.settings.get(node.settings.Options.masterAddress);
-    if (currentMasterAddress == null || currentMasterAddress === "") {
-        node.settings.update(node.settings.Options.masterAddress, "ws://csl-masters.noia.network:5565");
+    const currentMasterAddress = node.getSettings().get("masterAddress");
+    if (currentMasterAddress == null) {
+        node.getSettings().update("masterAddress", "ws://csl-masters.noia.network:5565");
     }
 
-    // GUI Settings
-    await guiSettings.ensure("minimizeToTray", false);
-    await guiSettings.ensure("autoReconnect", false);
     //#endregion
 
     node.on("started", () => {
         console.info("[NODE] Started");
     });
 
-    node.contentsClient.on("seeding", async (infoHashes: string[]) => {
+    node.getContentsClient().on("seeding", async (infoHashes: string[]) => {
         console.info("[NODE] Seeding contents =", infoHashes);
-        const storageStats = (await node.storageSpace.stats()) as StorageStats;
+        const storageStats = await node.getStorageSpace().stats();
         console.info("[NODE] Storage usage =", storageStats);
         NodeActionsCreators.updateStorageStats(storageStats);
     });
 
-    // Interval updates from statistics file.
-    setInterval(() => {
-        const totalTimeConnected = node.statistics.get(node.statistics.Options.totalTimeConnected);
-        NodeActionsCreators.updateTimeConnected(totalTimeConnected);
+    NodeActionsCreators.updateConnectionStatus(node.getMaster().connectionState);
+    node.getMaster().on("connectionStateChange", () => {
+        NodeActionsCreators.updateConnectionStatus(node.getMaster().connectionState);
+    });
 
-        const totalDownloaded = node.statistics.get(node.statistics.Options.totalDownloaded);
-        const totalUploaded = node.statistics.get(node.statistics.Options.totalUploaded);
+    // Interval updates from statistics file.
+    node.getMaster().on("statistics", stats => {
+        NodeActionsCreators.updateTimeConnected(stats.time.total);
         NodeActionsCreators.updateSeedStats({
-            totalDownloaded: totalDownloaded,
-            totalUploaded: totalUploaded
+            totalDownloaded: stats.downloaded,
+            totalUploaded: stats.uploaded
         });
-    }, 1000);
+    });
 
     //#region Speed update
     setInterval(() => {
+        const contentsClient = node.getContentsClient();
+
         NodeActionsCreators.updateSpeed({
-            download: node.contentsClient.downloadSpeed,
-            upload: node.contentsClient.uploadSpeed
+            download: contentsClient.downloadSpeed,
+            upload: contentsClient.uploadSpeed
         });
     }, 1000);
     //#endregion
 
     //#region Connections update
+    const clientSockets = node.getClientSockets();
+
     // WebSocket
-    if (node.clientSockets.ws != null) {
-        node.clientSockets.ws.on("connections", count => {
+    if (clientSockets.ws != null) {
+        clientSockets.ws.on("connections", count => {
             NodeActionsCreators.updateConnectionsCount({
                 ws: count
             });
         });
     }
     // WebRTC
-    if (node.clientSockets.wrtc != null) {
-        node.clientSockets.wrtc.on("connections", count => {
+    if (clientSockets.wrtc != null) {
+        clientSockets.wrtc.on("connections", count => {
             NodeActionsCreators.updateConnectionsCount({
                 wrtc: count
             });
         });
     }
     // HTTP
-    if (node.clientSockets.http != null) {
-        node.clientSockets.http.on("connections", count => {
+    if (clientSockets.http != null) {
+        clientSockets.http.on("connections", count => {
             NodeActionsCreators.updateConnectionsCount({
                 http: count
             });
@@ -180,32 +137,37 @@ async function main(): Promise<void> {
     //#endregion
 
     //#region Master events
-    node.master.on("connected", async (info: NodeOnConnectedDto) => {
+    node.getMaster().on("connected", async info => {
+        console.info("[NODE] Connected to master.");
         timesReconnected = 0;
         forceDisconnect = false;
         NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
         NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
-        NodeActionsCreators.updateConnectionStatus(NodeConnection.Connected);
 
-        if (info == null || info.params == null || info.params.externalIp == null) {
+        const masterMetadata = info.data.metadata as MasterMetadata;
+
+        if (masterMetadata.externalIp == null) {
             return;
         }
 
-        const currentIp: string = node.settings.settings[node.settings.Options.wrtcDataIp];
-        const nextExternalIp: string = info.params.externalIp;
+        const webrtcSettings = node
+            .getSettings()
+            .getScope("sockets")
+            .getScope("wrtc");
+
+        const currentIp: string = webrtcSettings.get("dataIp");
+        const nextExternalIp: string = masterMetadata.externalIp;
 
         if (currentIp !== nextExternalIp) {
-            node.settings.update(node.settings.Options.wrtcDataIp, info.params.externalIp);
-            console.info(`[noia-node] External IP (wrtcDataIp) changed. From ${currentIp} to ${nextExternalIp}.`);
+            webrtcSettings.update("dataIp", nextExternalIp);
+            console.info(`[NODE] External IP (wrtcDataIp) changed. From ${currentIp} to ${nextExternalIp}.`);
 
             await node.stop();
             node.start();
         }
     });
 
-    node.master.on("closed", async (info?: NodeOnClosedDto) => {
-        NodeActionsCreators.updateConnectionStatus(NodeConnection.Disonnected);
-
+    node.getMaster().on("closed", async info => {
         if (forceDisconnect) {
             return;
         }
@@ -241,10 +203,9 @@ async function main(): Promise<void> {
             });
         }
 
-        if (!guiSettings.get("autoReconnect")) {
+        if (!node.getSettings().get("autoReconnect")) {
             return;
         }
-        NodeActionsCreators.updateConnectionStatus(NodeConnection.Connecting);
 
         const seconds = (timesReconnected + 1) * 5;
         timesReconnected++;
@@ -260,35 +221,14 @@ async function main(): Promise<void> {
             NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
             NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
             // We need to wait for notifications to get removed first.
-            setTimeout(() => node.start(), 1000);
+            setTimeout(async () => node.start(), 1000);
         }, seconds * 1000);
-    });
-
-    node.master.once("warning", info => {
-        NotificationActionsCreators.createNotification({
-            level: "warning",
-            uid: "master-warning",
-            title: "Master",
-            message: info.message
-        });
     });
     //#endregion
 
-    node.on("error", (error: Error & { code?: string; port?: number }) => {
-        let errorMessage: string = error.message;
-        if (error.code === "EADDRINUSE") {
-            errorMessage = `Port ${error.port} is already in use. Please choose another port.`;
-        }
-
-        NotificationActionsCreators.createNotification({
-            level: "error",
-            message: errorMessage
-        });
-    });
-
     //#region Listening actions
     NodeDispatcher.addListener<ConnectAction>("NODE_CONNECT", () => {
-        if (NodeStore.getConnectionStatus() !== NodeConnection.Connected) {
+        if (NodeStore.getConnectionStatus() !== MasterConnectionState.Connected) {
             node.start();
         }
     });
@@ -296,12 +236,11 @@ async function main(): Promise<void> {
     NodeDispatcher.addListener<DisconnectAction>("NODE_DISCONNECT", () => {
         forceDisconnect = true;
         const connectionStatus = NodeStore.getConnectionStatus();
-        if (connectionStatus !== NodeConnection.Connected && connectionStatus !== NodeConnection.Connecting) {
+        if (connectionStatus !== MasterConnectionState.Connected && connectionStatus !== MasterConnectionState.Connecting) {
             return;
         }
 
-        if (connectionStatus === NodeConnection.Connecting) {
-            NodeActionsCreators.updateConnectionStatus(NodeConnection.Disonnected);
+        if (connectionStatus === MasterConnectionState.Connecting) {
             NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
             NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
             if (reconnectionTimeout != null) {
@@ -314,32 +253,28 @@ async function main(): Promise<void> {
     });
 
     NodeDispatcher.addListener<RequestStorageStatsAction>("NODE_REQUEST_STORAGE_STATS", async () => {
-        const storageStats = (await node.storageSpace.stats()) as StorageStats;
+        const storageStats = await node.getStorageSpace().stats();
         NodeActionsCreators.updateStorageStats(storageStats);
     });
 
     NodeDispatcher.addListener<RequestNodeSettingsAction>("REQUEST_NODE_SETTINGS", () => {
-        const settings = getSettings(node, guiSettings);
-
-        NodeActionsCreators.updateSettings(settings);
+        NodeActionsCreators.updateSettings(node.getSettings().dehydrate());
     });
 
     NodeDispatcher.addListener<UpdateNodeSettingsAction>("UPDATE_NODE_SETTINGS", action => {
-        const restartRequired = updateSettings(node, guiSettings, action.settings);
-        const settings = getSettings(node, guiSettings);
-
-        NodeActionsCreators.updateSettings(settings);
+        node.getSettings().deepUpdate(action.settings);
+        NodeActionsCreators.updateSettings(node.getSettings().dehydrate());
 
         if (action.notify) {
-            const restartRequiredString = restartRequired ? "Restarting node server..." : "";
-
+            const restartMessage = action.restartNode ? " Restarting node server..." : "";
             NotificationActionsCreators.createNotification({
                 level: "success",
-                message: `Updated settings succesfully. ${restartRequiredString}`
+                title: "Settings updated",
+                message: `Node settings updated successfully.${restartMessage}`
             });
         }
 
-        if (restartRequired) {
+        if (action.restartNode) {
             NodeActionsCreators.restartNodeProcess();
         }
     });
@@ -347,7 +282,7 @@ async function main(): Promise<void> {
     //#endregion
 
     NodeActionsCreators.ready();
-    if (guiSettings.get("autoReconnect")) {
+    if (node.getSettings().get("autoReconnect")) {
         node.start();
     }
 }

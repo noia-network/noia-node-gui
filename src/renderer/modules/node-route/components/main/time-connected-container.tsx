@@ -4,7 +4,8 @@ import { Container } from "flux/utils";
 import { NodeStore } from "../../stores/node-store";
 import { StatisticsView } from "./statistics/statistics-view";
 
-function hhmmss(timeInSeconds: number): string {
+function hhmmss(timeInMs: number): string {
+    const timeInSeconds = timeInMs / 1000;
     const seconds = Math.floor((timeInSeconds % 3600) % 60);
     const minutes = Math.floor((timeInSeconds % 3600) / 60);
     const hours = Math.floor(timeInSeconds / 3600);

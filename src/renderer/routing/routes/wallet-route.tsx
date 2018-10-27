@@ -5,6 +5,6 @@ import { SettingsContainer } from "@renderer/modules/node-settings/node-settings
 
 export class WalletRoute extends React.Component {
     public render(): JSX.Element {
-        return <SettingsContainer>{settings => <WalletRouteView settings={settings} />}</SettingsContainer>;
+        return <SettingsContainer>{settings => <WalletRouteView walletAddress={settings.blockchain.airdropAddress} />}</SettingsContainer>;
     }
 }

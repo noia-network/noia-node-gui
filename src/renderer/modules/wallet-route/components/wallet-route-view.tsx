@@ -1,8 +1,6 @@
 import * as React from "react";
 import { remote } from "electron";
 
-import { NodeSettingsKeys } from "@global/contracts/node-settings";
-
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
 import { SettingsLayoutView } from "@renderer/modules/settings-route/settings-route-module";
 import { TextFieldView } from "@renderer/modules/shared/shared-module";
@@ -11,11 +9,11 @@ import { NotificationsActionsCreators } from "@renderer/modules/notifications/no
 import "./wallet-route-view.scss";
 
 interface FormFieldsDto {
-    [NodeSettingsKeys.WalletAddress]: string;
+    walletAddress: string;
 }
 
 interface Props {
-    settings: { [key: string]: unknown };
+    walletAddress: string | null;
 }
 
 interface State {
@@ -28,8 +26,7 @@ export class WalletRouteView extends React.Component<Props, State> {
 
         this.state = {
             fields: {
-                [NodeSettingsKeys.WalletAddress]: "",
-                ...props.settings
+                walletAddress: props.walletAddress || ""
             }
         };
     }
@@ -38,7 +35,7 @@ export class WalletRouteView extends React.Component<Props, State> {
         event.preventDefault();
         event.stopPropagation();
 
-        const wallet = this.state.fields[NodeSettingsKeys.WalletAddress];
+        const wallet = this.state.fields.walletAddress;
 
         if (wallet.length !== 42 && wallet.length !== 0) {
             NotificationsActionsCreators.addNotification({
@@ -50,14 +47,22 @@ export class WalletRouteView extends React.Component<Props, State> {
             return;
         }
 
-        NodeSettingsActionsCreators.updateSettings(this.state.fields, true);
+        NodeSettingsActionsCreators.updateSettings({
+            settings: {
+                blockchain: {
+                    airdropAddress: wallet
+                }
+            },
+            notify: true,
+            restartNode: true
+        });
     };
 
     private onTextChange: React.ChangeEventHandler<HTMLInputElement> = event => {
         const value = event.target.value.trim();
 
         this.setState(state => {
-            state.fields[NodeSettingsKeys.WalletAddress] = value;
+            state.fields.walletAddress = value;
             return state;
         });
     };
@@ -66,7 +71,7 @@ export class WalletRouteView extends React.Component<Props, State> {
         const value = remote.clipboard.readText().trim();
 
         this.setState(state => {
-            state.fields[NodeSettingsKeys.WalletAddress] = value;
+            state.fields.walletAddress = value;
             return state;
         });
     };
@@ -80,7 +85,7 @@ export class WalletRouteView extends React.Component<Props, State> {
                         <TextFieldView
                             name="wallet"
                             className="wallet-field"
-                            value={this.state.fields[NodeSettingsKeys.WalletAddress]}
+                            value={this.state.fields.walletAddress}
                             onChange={this.onTextChange}
                             placeholder="Paste your ethereum wallet address here"
                         />

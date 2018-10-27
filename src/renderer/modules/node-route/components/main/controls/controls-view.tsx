@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import { NodeConnection } from "@global/contracts/node-actions";
-import { NodeSettingsActionsCreators, SettingsKeys } from "@renderer/modules/node-settings/node-settings-module";
+import { MasterConnectionState } from "@global/contracts/node";
+import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
 import { NodeActionsCreators } from "../../../actions/node-actions-creators";
 
 import "./controls-view.scss";
 
 interface Props {
-    connectionStatus: NodeConnection;
+    connectionStatus: MasterConnectionState;
     autoReconnect: boolean;
 }
 
@@ -16,27 +16,29 @@ export class ControlsView extends React.Component<Props> {
         const value = event.target.checked;
 
         NodeSettingsActionsCreators.updateSettings({
-            [SettingsKeys.AutoReconnect]: value
+            settings: {
+                autoReconnect: value
+            },
+            notify: false,
+            restartNode: false
         });
     };
 
     private onClick: React.MouseEventHandler<HTMLButtonElement> = () => {
         switch (this.props.connectionStatus) {
-            case NodeConnection.Init:
-            case NodeConnection.Disonnected: {
+            case MasterConnectionState.Disconnected: {
                 NodeActionsCreators.connect();
             }
-            case NodeConnection.Connecting:
-            case NodeConnection.Connected: {
+            case MasterConnectionState.Connecting:
+            case MasterConnectionState.Connected: {
                 NodeActionsCreators.disconnect();
             }
         }
     };
 
-    private renderButton(connection: NodeConnection): JSX.Element {
+    private renderButton(connection: MasterConnectionState): JSX.Element {
         switch (connection) {
-            case NodeConnection.Init:
-            case NodeConnection.Disonnected: {
+            case MasterConnectionState.Disconnected: {
                 return (
                     <button className="button connect" onClick={this.onClick}>
                         <img src="static/icon-power.svg" />
@@ -44,7 +46,7 @@ export class ControlsView extends React.Component<Props> {
                     </button>
                 );
             }
-            case NodeConnection.Connecting: {
+            case MasterConnectionState.Connecting: {
                 return (
                     <button className="button connect" onClick={this.onClick}>
                         <img src="static/icon-power.svg" />
@@ -52,7 +54,7 @@ export class ControlsView extends React.Component<Props> {
                     </button>
                 );
             }
-            case NodeConnection.Connected: {
+            case MasterConnectionState.Connected: {
                 return (
                     <button className="button connect green" onClick={this.onClick}>
                         <img src="static/icon-power.svg" />
