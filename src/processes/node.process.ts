@@ -21,8 +21,7 @@ process.on("unhandledRejection", error => {
     throw error;
 });
 
-const enum NotificationsId {
-    FailedToConnect = "failed-to-connect",
+const enum NotificationId {
     AutoReconnect = "auto-reconnect"
 }
 
@@ -48,14 +47,10 @@ async function main(): Promise<void> {
 
         NotificationActionsCreators.createNotification({
             level: "error",
-            message: errorMessage
+            title: "Error",
+            message: `An error has occurred. ${errorMessage}`
         });
     });
-
-    let timesReconnected: number = 0;
-    let reconnectionTimeout: NodeJS.Timer | undefined;
-    // Force disconnect only occurs when "Disconnect" button is clicked in renderer.
-    let forceDisconnect: boolean = false;
 
     //#region Settings.
     node.getSettings()
@@ -138,14 +133,10 @@ async function main(): Promise<void> {
 
     //#region Master events
     node.getMaster().on("connected", async info => {
+        NotificationActionsCreators.removeNotification(NotificationId.AutoReconnect);
+
         console.info("[NODE] Connected to master.");
-        timesReconnected = 0;
-        forceDisconnect = false;
-        NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
-        NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
-
         const masterMetadata = info.data.metadata as MasterMetadata;
-
         if (masterMetadata.externalIp == null) {
             return;
         }
@@ -168,61 +159,27 @@ async function main(): Promise<void> {
     });
 
     node.getMaster().on("closed", async info => {
-        if (forceDisconnect) {
-            return;
-        }
-
         if (info != null && info.code === 1000) {
             console.info(`[NODE]: connection with master closed, normal exit`);
             return;
         }
 
-        if (info != null && info.code === 1002 && info.reason != null) {
-            console.error(`[NODE]: connection with master closed, info =`, info);
-            NotificationActionsCreators.createNotification({
-                level: "error",
-                title: "Connection closed with master.",
-                message: info.reason
-            });
-        }
+        const reason = info != null ? ` Reason: ${info.reason}.` : "";
 
-        const isInternetConnectionAvailable = await Helpers.isInternetConnectionAvailable();
-        if (isInternetConnectionAvailable) {
-            console.error("error:", "[noia-node] Failed to connect to the master.");
-            NotificationActionsCreators.createNotification({
-                uid: NotificationsId.FailedToConnect,
-                level: "error",
-                message: "Failed to connect to the master."
-            });
-        } else {
-            console.error("error:", "[noia-node] No internet connection, please connect to the internet.");
-            NotificationActionsCreators.createNotification({
-                uid: NotificationsId.FailedToConnect,
-                level: "error",
-                message: "No internet connection, please connect to the internet."
-            });
-        }
-
-        if (!node.getSettings().get("autoReconnect")) {
-            return;
-        }
-
-        const seconds = (timesReconnected + 1) * 5;
-        timesReconnected++;
-        console.info("info:", `[noia-node] Will try to reconnect in ${seconds} seconds.`);
         NotificationActionsCreators.createNotification({
-            uid: NotificationsId.AutoReconnect,
-            level: "info",
-            message: `Will try to reconnect in ${seconds} seconds.`,
+            level: "error",
+            title: "Connection closed with master.",
+            message: `Connection with master was closed unexpectedly.${reason}`
+        });
+    });
+
+    node.getMaster().on("reconnecting", seconds => {
+        NotificationActionsCreators.createNotification({
+            uid: NotificationId.AutoReconnect,
+            level: "warning",
+            message: `Connection with master was closed unexpectedly. Will try to reconnect in ${seconds} seconds.`,
             autoDismiss: 0
         });
-
-        reconnectionTimeout = setTimeout(() => {
-            NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
-            NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
-            // We need to wait for notifications to get removed first.
-            setTimeout(async () => node.start(), 1000);
-        }, seconds * 1000);
     });
     //#endregion
 
@@ -234,19 +191,9 @@ async function main(): Promise<void> {
     });
 
     NodeDispatcher.addListener<DisconnectAction>("NODE_DISCONNECT", () => {
-        forceDisconnect = true;
         const connectionStatus = NodeStore.getConnectionStatus();
         if (connectionStatus !== MasterConnectionState.Connected && connectionStatus !== MasterConnectionState.Connecting) {
             return;
-        }
-
-        if (connectionStatus === MasterConnectionState.Connecting) {
-            NotificationActionsCreators.removeNotification(NotificationsId.FailedToConnect);
-            NotificationActionsCreators.removeNotification(NotificationsId.AutoReconnect);
-            if (reconnectionTimeout != null) {
-                timesReconnected = 0;
-                clearTimeout(reconnectionTimeout);
-            }
         }
 
         node.stop();
