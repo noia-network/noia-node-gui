@@ -1,7 +1,6 @@
 import { Node as NoiaNode, MasterMetadata } from "@noia-network/node";
 
 import { MasterConnectionState } from "../contracts/node";
-import { Helpers } from "../helpers";
 import { NodeActionsCreators } from "./node/actions/node-actions-creators";
 import { NodeStore } from "./node/node-store";
 import { NodeDispatcher } from "./node/node-dispatcher";
@@ -33,10 +32,7 @@ async function main(): Promise<void> {
     NodeActionsCreators.init();
 
     node.on("warning", message => {
-        NotificationActionsCreators.createNotification({
-            level: "warning",
-            message: message
-        });
+        NodeActionsCreators.warning(message);
     });
 
     node.on("error", (error: Error & { code?: string; port?: number }) => {
