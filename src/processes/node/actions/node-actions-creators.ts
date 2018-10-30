@@ -14,7 +14,8 @@ import {
     NodeSeedStatsAction,
     SeedStats,
     NodeSettingsAction,
-    NodeReadyAction
+    NodeReadyAction,
+    NodeWarningAction
 } from "../../../contracts/node-actions";
 import { NodeStoreState, NodeStore } from "../node-store";
 import { RequestNodeProcessRestartAction } from "contracts/shared-actions";
@@ -117,6 +118,13 @@ export namespace NodeActionsCreators {
     export function restartNodeProcess(): void {
         NodeDispatcher.dispatch<RequestNodeProcessRestartAction>({
             type: "REQUEST_NODE_PROCESS_RESTART"
+        });
+    }
+
+    export function warning(message: string): void {
+        NodeDispatcher.dispatch<NodeWarningAction>({
+            type: "NODE_WARNING",
+            message: message
         });
     }
 }

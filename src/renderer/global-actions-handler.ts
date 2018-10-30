@@ -1,6 +1,6 @@
 import { remote } from "electron";
 
-import { NodeCriticalErrorAction } from "@global/contracts/node-actions";
+import { NodeCriticalErrorAction, NodeWarningAction } from "@global/contracts/node-actions";
 import { RendererDispatcher } from "@renderer/dispatchers/dispatcher";
 import { NodeActionsCreators } from "@renderer/modules/node-route/node-route-module";
 import { NotificationsActionsCreators } from "@renderer/modules/notifications/notifications-module";
@@ -24,6 +24,25 @@ RendererDispatcher.addListener<NodeCriticalErrorAction>("NODE_CRITICAL_ERROR", a
             label: "Restart Node",
             callback: () => {
                 NodeActionsCreators.restartServer();
+            }
+        }
+    });
+});
+
+// tslint:disable-next-line:const-variable-name
+let warningNotificationCounter: number = 0;
+
+RendererDispatcher.addListener<NodeWarningAction>("NODE_WARNING", action => {
+    const notificationId: string = `node-warning-${++warningNotificationCounter}`;
+
+    NotificationsActionsCreators.addNotification({
+        level: "warning",
+        message: action.message,
+        autoDismiss: 0,
+        action: {
+            label: "Dismiss",
+            callback: () => {
+                NotificationsActionsCreators.removeNotification(notificationId);
             }
         }
     });

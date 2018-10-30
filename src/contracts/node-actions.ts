@@ -74,6 +74,11 @@ export interface NodeSettingsAction {
     settings: NodeSettingsDto;
 }
 
+export interface NodeWarningAction {
+    type: "NODE_WARNING";
+    message: string;
+}
+
 export interface NodeCriticalErrorAction {
     type: "NODE_CRITICAL_ERROR";
     message: string;
