@@ -1,6 +1,6 @@
 {
     "name": "noia-node-gui",
-    "version": "1.0.0-rc.5",
+    "version": "1.0.0-rc.6",
     "private": true,
     "main": "main.js",
     "scripts": {
@@ -36,8 +36,8 @@
         "webpack-dev-server": "^3.1.6"
     },
     "dependencies": {
-        "@noia-network/node": "1.0.0-rc.20",
-        "@noia-network/node-settings": "0.1.0-alpha.15",
+        "@noia-network/node": "1.0.0",
+        "@noia-network/node-settings": "^1.0.1",
         "@types/bytes": "^3.0.0",
         "@types/classnames": "^2.2.6",
         "@types/dotenv": "^4.0.3",
