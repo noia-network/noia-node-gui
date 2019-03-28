@@ -140,6 +140,9 @@ export class SettingsNodeView extends React.Component<Props, State> {
     };
 
     private onStorageSizeChange: StorageFieldViewChangeHandler = bytes => {
+        if (bytes === 0) {
+            bytes = 104857600;
+        }
         this.setState(state => {
             state.fields.storageSize = bytes;
             return state;
@@ -148,7 +151,6 @@ export class SettingsNodeView extends React.Component<Props, State> {
 
     private onNatPmpChange: React.ChangeEventHandler<HTMLInputElement> = event => {
         const value = event.target.checked;
-
         this.setState(state => {
             state.fields.natPmp = value;
             return state;

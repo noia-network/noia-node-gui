@@ -15,7 +15,7 @@ enum Status {
     Calculated = 16
 }
 
-const MIN_BYTES = 1024 ** 2;
+const MIN_BYTES = 1024 * 102400;
 
 interface Props extends FieldBaseProps<number> {
     onChange?: StorageFieldViewChangeHandler;
