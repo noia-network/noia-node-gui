@@ -4,7 +4,7 @@
 
 ## Wallet > Wallet
 
-Settings are for your ethereum wallet address. You can simply copy your wallet address with ctrl+c and in NOIA Node GUI press button "Paste from clipboard".
+Settings are for your ethereum wallet address. You can simply copy your wallet address with `ctrl+c` and in NOIA Node GUI press button "Paste from clipboard".
 In settings file is located on `airdropAddress` name. **Example:** `airdropAddress=Your ethereum wallet address`
 
 ## Settings > Node > Master address
