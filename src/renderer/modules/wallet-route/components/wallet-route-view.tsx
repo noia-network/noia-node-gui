@@ -1,5 +1,6 @@
 import * as React from "react";
-import { remote } from "electron";
+import { remote, shell } from "electron";
+import * as path from "path";
 
 import { NodeSettingsActionsCreators } from "@renderer/modules/node-settings/node-settings-module";
 import { SettingsLayoutView } from "@renderer/modules/settings-route/settings-route-module";
@@ -7,6 +8,8 @@ import { TextFieldView } from "@renderer/modules/shared/shared-module";
 import { NotificationsActionsCreators } from "@renderer/modules/notifications/notifications-module";
 
 import "./wallet-route-view.scss";
+
+const FILEPATH = path.join(process.env.APPDATA!, "/noia-node/node.settings");
 
 interface FormFieldsDto {
     walletAddress: string;
@@ -76,6 +79,20 @@ export class WalletRouteView extends React.Component<Props, State> {
         });
     };
 
+    private fileFolder: React.MouseEventHandler<HTMLButtonElement> = () => {
+        this.setState(state => {
+            shell.showItemInFolder(FILEPATH);
+            return;
+        });
+    };
+
+    private helpUrl: React.MouseEventHandler<HTMLButtonElement> = () => {
+        this.setState(state => {
+            shell.openExternal("https://github.com/noia-network/noia-node-gui/blob/master/WIN_CONFIG_HELP.md");
+            return;
+        });
+    };
+
     public render(): JSX.Element {
         return (
             <SettingsLayoutView onSubmit={this.onSubmit} className="wallet-route-view">
@@ -92,6 +109,19 @@ export class WalletRouteView extends React.Component<Props, State> {
                         <span>
                             <button type="button" className="button small" onClick={this.onPasteClipboard}>
                                 Paste from clipboard
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div className="row">
+                    <label>Settings</label>
+                    <div className="field multiple">
+                        <span>
+                            <button type="button" className="button small" onClick={this.fileFolder}>
+                                File folder
+                            </button>
+                            <button type="button" className="button small ml-4" onClick={this.helpUrl}>
+                                Help
                             </button>
                         </span>
                     </div>

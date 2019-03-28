@@ -109,7 +109,7 @@ app.on("ready", () => {
         x: 0,
         y: 0,
         width: 730,
-        height: 450
+        height: 500
     });
 
     tray = createTray(async () => {
