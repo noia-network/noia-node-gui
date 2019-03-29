@@ -5,7 +5,7 @@
 ![GitHub release downloads](https://img.shields.io/github/downloads/noia-network/noia-node-gui/latest/total.svg?style=flat-square)
 ![Github license](https://img.shields.io/github/license/noia-network/noia-node-gui.svg?style=flat-square)
 
-This is noia-node GUI implementation for [noia-node](https://github.com/noia-network/noia-node).
+This is [noia-node](https://github.com/noia-network/noia-node) GUI implementation.
 
 ![Screenshot](assets/screenshot.png)
 

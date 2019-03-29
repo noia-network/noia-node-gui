@@ -1,6 +1,6 @@
 {
     "name": "noia-node-gui",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "private": true,
     "main": "main.js",
     "scripts": {
@@ -37,7 +37,7 @@
     },
     "dependencies": {
         "@noia-network/node": "1.0.5",
-        "@noia-network/node-settings": "1.0.1",
+        "@noia-network/node-settings": "1.0.2",
         "@types/bytes": "3.0.0",
         "@types/classnames": "2.2.6",
         "@types/dotenv": "4.0.3",
