@@ -16,7 +16,8 @@ const config = generateWebpackConfig({
         baseHref: "./"
     },
     projectDirectory: __dirname,
-    target: "electron-renderer"
+    target: "electron-renderer",
+    concatenateModules: false
 });
 
 config.module.rules.push({

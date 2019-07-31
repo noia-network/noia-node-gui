@@ -9,7 +9,12 @@ import { NotificationsActionsCreators } from "@renderer/modules/notifications/no
 
 import "./wallet-route-view.scss";
 
-const FILEPATH = path.join(process.env.APPDATA!, "/noia-node/node.settings");
+const FILEPATH =
+    process.platform === "win32"
+        ? process.env.APPDATA + "/noia-node/node.settings"
+        : process.platform === "darwin"
+        ? path.join(process.env.HOME!, "Library/Application Support/noia-node/node.settings")
+        : path.join(process.env.HOME + "/.noia-node/node.settings");
 
 interface FormFieldsDto {
     walletAddress: string;
