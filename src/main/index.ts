@@ -102,6 +102,9 @@ app.on("ready", () => {
     });
 
     browserWindow = new BrowserWindow({
+        webPreferences: {
+            webSecurity: false
+        },
         resizable: false,
         useContentSize: true,
         title: "NOIA Node",
