@@ -13,7 +13,7 @@ process.on("unhandledRejection", error => {
     NotificationActionsCreators.createNotification({
         level: "error",
         title: "Critical error",
-        message: error.message,
+        message: `${error}`,
         autoDismiss: 0
     });
 
