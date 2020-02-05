@@ -4,7 +4,7 @@
     "private": true,
     "main": "main.js",
     "scripts": {
-        "postinstall": "cross-env DEBUG=electron-builder npx electron-builder install-app-deps",
+        "postinstall": "electron-builder install-app-deps",
         "test": "tsc -p . --noEmit && tslint -p .",
         "build": "npm run build:main && npm run build:renderer",
         "watch": "npm-run-all -p watch:main watch:renderer",

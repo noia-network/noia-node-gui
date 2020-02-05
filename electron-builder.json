@@ -18,8 +18,5 @@
         "icon": "assets",
         "target": ["AppImage"],
         "publish": ["github"]
-    },
-    "nsis": {
-        "perMachine": true
     }
 }
