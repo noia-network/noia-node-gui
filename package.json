@@ -36,7 +36,7 @@
         "webpack-dev-server": "3.1.6"
     },
     "dependencies": {
-        "@noia-network/node": "^1.2.4",
+        "@noia-network/node": "1.2.5-rc",
         "@noia-network/node-settings": "^1.0.2",
         "@types/bytes": "3.0.0",
         "@types/classnames": "2.2.6",
