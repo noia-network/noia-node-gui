@@ -36,7 +36,7 @@
         "webpack-dev-server": "3.1.6"
     },
     "dependencies": {
-        "@noia-network/node": "1.2.5-rc.1",
+        "@noia-network/node": "^1.2.4",
         "@noia-network/node-settings": "^1.0.2",
         "@types/bytes": "3.0.0",
         "@types/classnames": "2.2.6",
@@ -54,7 +54,7 @@
         "chalk": "2.4.1",
         "classnames": "2.2.6",
         "cross-env": "5.2.0",
-        "diskusage": "1.0.0",
+        "diskusage": "0.2.6",
         "diskusage-ng": "0.2.3",
         "dotenv": "6.0.0",
         "electron-is-dev": "0.3.0",
