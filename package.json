@@ -22,7 +22,7 @@
         "@simplrjs/webpack": "0.1.0-alpha.11",
         "@types/react-notification-system": "0.2.38",
         "@types/webpack": "4.4.11",
-        "electron": "2.0.8",
+        "electron": "13.6.6",
         "electron-builder": "20.38.0",
         "electron-react-devtools": "0.5.3",
         "nodemon": "1.18.3",
